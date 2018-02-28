@@ -19,11 +19,14 @@ include game.inc
 ;; Has keycodes
 include keys.inc
 
+;; Sprite bitmaps
+EXTERNDEF fighter_000:EECS205BITMAP
+
+OBJECTS_SIZE = 100 ;; Constant of max game objects
 
 .DATA
 
-;; If you need to, you can place global variables here
-
+    GameObjects GameObject ? DUP(OBJECTS_SIZE)
 
 .CODE
 
@@ -85,8 +88,20 @@ EXIT:
     ret
 CheckIntersect ENDP
 
-GameInit PROC
+GameInit PROC USES eax edi
 
+    ;; Initialize the player (who is always the first object in the GameObjects array)
+    mov edi, OFFSET GameObjects
+    mov (GameObject PTR [edi]).sprite, OFFSET fighter_000
+    mov (GameObject PTR [edi]).xcenter, 320
+    mov (GameObject PTR [edi]).ycenter, 240
+    mov (GameObject PTR [edi]).xvelocity, ONE
+    mov (GameObject PTR [edi]).yvelocity, ZERO
+    mov (GameObject PTR [edi]).rotation, ZERO
+
+    ;; Spawn the player with sixteen frames of rotational velocity
+    INVOKE FixedMultiply, ROT_INC, 00100000h
+    mov (GameObject PTR [edi]).rvelocity, eax
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 

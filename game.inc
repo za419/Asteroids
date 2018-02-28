@@ -23,7 +23,12 @@ MK_XBUTTON2 = 0040h  ;; The second X button is down.
 
 ;; FXPT constants
 ONE = 00010000h
-HALF = 00008000h 
+HALF = 00008000h
+ZERO = 00000000h
+PI_HALF = 102943           	;;  PI / 2
+PI =  205887	                ;;  PI
+ROT_INC = 00000648h ;; Increment for rotation: PI/64
+ACCEL = 00002000h ;; Increment for linear acceleration: one quarter-pixel per frame
 
 ;; Library Functions
 BlackStarField	PROTO
@@ -39,8 +44,17 @@ EXTERNDEF KeyPress:DWORD
 ;; User Defined Functions
 GameInit PROTO
 GamePlay PROTO
-CheckIntersect PROTO oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DWORD, twoY:DWORD, twoBitmap:PTR EECS205BITMAP 
+CheckIntersect PROTO oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DWORD, twoY:DWORD, twoBitmap:PTR EECS205BITMAP
 
-
+;; Game object structures
+GameObject STRUCT
+    sprite DWORD ? ;; Pointer to sprite representing this GameObject. Null if this is empty
+    xcenter DWORD ?
+    ycenter DWORD ?
+    xvelocity FXPT ?
+    yvelocity FXPT ?
+    rotation FXPT ?
+    rvelocity FXPT ?
+GameObject ENDS
 
 
