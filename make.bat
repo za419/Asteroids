@@ -13,19 +13,19 @@ echo off
 :: go to the directory contains ml.exe and link.exe
 :: and type "echo %cd%" to get the full path
 
-set MASMPATH=
+set MASMPATH="D:\masm32\bin"
 
 :: make sure you add the path to libraries: user32.lib, kernel32.lib, gdi32.lib, masm32.lib
 :: those libraries normally live in C:\masm32\lib on windows
 :: if using wine on Mac, same trick as above.
 
-set MASMLIBPATH=
+set MASMLIBPATH="D:\masm32\lib"
 
 :: make sure you add the path to includes: windows.inc, user32.inc, winmm.inc
 :: those includes normally live in C:\masm32\include on windows
 :: if using wine on Mac, same trick as above.
 
-set MASMINCPATH=
+set MASMINCPATH="D:\masm32\include"
 
 ::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 :::
