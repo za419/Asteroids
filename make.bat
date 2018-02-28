@@ -8,7 +8,7 @@ echo off
 
 :: make sure you add the path to ml.exe and link.exe
 :: if you are using windows machine, it is normally C:\masm32\bin
-:: if you are using wine on Mac, it may be under your virtual C drive. 
+:: if you are using wine on Mac, it may be under your virtual C drive.
 :: one way to check that is to run cmd.exe (on Mac, run "wine cmd.exe")
 :: go to the directory contains ml.exe and link.exe
 :: and type "echo %cd%" to get the full path
