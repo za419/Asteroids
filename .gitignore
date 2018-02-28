@@ -1,0 +1,6 @@
+# Ignore binary object files...
+*.obj
+# Except those whose names start with 'lib'
+!lib*.obj
+# Ignore executables
+*.exe
