@@ -125,12 +125,13 @@ SKIP:
 DrawGameObject ENDP
 
 ;; Draws all game objects, in order
-DrawGame PROC USES eax ecx esi
+DrawGame PROC USES ecx esi edi
 
-    mov ecx, 640*120
-    xor eax, eax
+    ;; Copy background bytes into the screen buffer
+    mov ecx, 640*480
+    mov esi, OFFSET background
     mov edi, ScreenBitsPtr
-    rep stosd
+    rep movsb
 
     ;; Initializer
     mov esi, OFFSET GameObjects
@@ -300,8 +301,7 @@ fighter_000 EECS205BITMAP <44, 37, 255,, offset fighter_000 + sizeof fighter_000
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
     
-background EECS205BITMAP <640, 480, 255,, offset background + sizeof background>
-	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
+background BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,024h,02ah,013h,025h,000h
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
