@@ -101,8 +101,8 @@ GameInit PROC USES eax edi
     mov (GameObject PTR [edi]).yvelocity, ZERO
     mov (GameObject PTR [edi]).rotation, ZERO
 
-    ;; Spawn the player with sixteen frames of rotational velocity
-    INVOKE FixedMultiply, ROT_INC, 00100000h
+    ;; Spawn the player with four frames of rotational velocity
+    INVOKE FixedMultiply, ROT_INC, 0040000h
     mov (GameObject PTR [edi]).rvelocity, eax
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
@@ -125,7 +125,12 @@ SKIP:
 DrawGameObject ENDP
 
 ;; Draws all game objects, in order
-DrawGame PROC
+DrawGame PROC USES eax ecx esi
+
+    mov ecx, 640*120
+    xor eax, eax
+    mov edi, ScreenBitsPtr
+    rep stosd
 
     ;; Initializer
     mov esi, OFFSET GameObjects
@@ -150,11 +155,11 @@ UpdateGameObject PROC USES eax ptrObject:PTR GameObject
     je SKIP
 
     ;; First, update x coordinate
-    INVOKE FixedAdd, eax, (GameObject PTR [esi]).xvelocity
+    INVOKE FixedAdd, (GameObject PTR [esi]).xcenter, (GameObject PTR [esi]).xvelocity
     mov (GameObject PTR [esi]).xcenter, eax
 
     ;; Now, update y coordinate
-    INVOKE FixedAdd, eax, (GameObject PTR [esi]).yvelocity
+    INVOKE FixedAdd, (GameObject PTR [esi]).ycenter, (GameObject PTR [esi]).yvelocity
     mov (GameObject PTR [esi]).ycenter, eax
 
     ;; Finally, update rotation
@@ -165,7 +170,7 @@ SKIP:
 UpdateGameObject ENDP
 
 ;; Updates all game objects, in order
-UpdateGame PROC
+UpdateGame PROC USES ecx esi
 
     ;; Initializer
     mov esi, OFFSET GameObjects
