@@ -23,7 +23,8 @@ BasicBlit PROTO STDCALL ptrBitmap:PTR EECS205BITMAP, xcenter:DWORD, ycenter:DWOR
 RotateBlit PROTO STDCALL ptrBitmap:PTR EECS205BITMAP, xcenter:DWORD, ycenter:DWORD, angle:FXPT
 	   
 
-
+ToFixedPoint PROTO STDCALL a:SDWORD
+FromFixedPoint PROTO STDCALL a:SDWORD
 
 
 

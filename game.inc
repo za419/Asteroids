@@ -20,6 +20,11 @@ MK_SHIFT    = 0004h  ;; The SHIFT key is down.
 MK_XBUTTON1 = 0020h  ;; The first X button is down.
 MK_XBUTTON2 = 0040h  ;; The second X button is down.
 
+
+;; FXPT constants
+ONE = 00010000h
+HALF = 00008000h 
+
 ;; Library Functions
 BlackStarField	PROTO
 DrawStr PROTO myStr:PTR BYTE, x:DWORD, y:DWORD, color:DWORD
