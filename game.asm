@@ -139,6 +139,8 @@ DrawGame ENDP
 UpdateGameObject PROC USES eax ptrObject:PTR GameObject
 
     mov esi, ptrObject
+    cmp (GameObject PTR [esi]).sprite, 0 ;; Null check
+    je SKIP
 
     ;; First, update x coordinate
     INVOKE ToFixedPoint, (GameObject PTR [esi]).xcenter
@@ -153,6 +155,7 @@ UpdateGameObject PROC USES eax ptrObject:PTR GameObject
     ;; Finally, update rotation
     INVOKE FixedAdd, (GameObject PTR [esi]).rotation, (GameObject PTR [esi]).rvelocity
     mov (GameObject PTR [esi]).rotation, eax
+SKIP:
     ret
 UpdateGameObject ENDP
 
