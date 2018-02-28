@@ -153,12 +153,10 @@ UpdateGameObject PROC USES eax ptrObject:PTR GameObject
     je SKIP
 
     ;; First, update x coordinate
-    INVOKE ToFixedPoint, (GameObject PTR [esi]).xcenter
     INVOKE FixedAdd, eax, (GameObject PTR [esi]).xvelocity
     mov (GameObject PTR [esi]).xcenter, eax
 
     ;; Now, update y coordinate
-    INVOKE ToFixedPoint, (GameObject PTR [esi]).ycenter
     INVOKE FixedAdd, eax, (GameObject PTR [esi]).yvelocity
     mov (GameObject PTR [esi]).ycenter, eax
 
