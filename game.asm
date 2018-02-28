@@ -93,8 +93,13 @@ GameInit PROC USES eax edi
     ;; Initialize the player (who is always the first object in the GameObjects array)
     mov edi, OFFSET GameObjects
     mov (GameObject PTR [edi]).sprite, OFFSET fighter_000
-    mov (GameObject PTR [edi]).xcenter, 320
-    mov (GameObject PTR [edi]).ycenter, 240
+
+    INVOKE ToFixedPoint, 320
+    mov (GameObject PTR [edi]).xcenter, eax
+
+    INVOKE ToFixedPoint, 240
+    mov (GameObject PTR [edi]).ycenter, eax
+
     mov (GameObject PTR [edi]).xvelocity, ONE
     mov (GameObject PTR [edi]).yvelocity, ZERO
     mov (GameObject PTR [edi]).rotation, ZERO
@@ -112,7 +117,12 @@ DrawGameObject PROC USES eax ebx esi ptrObject:PTR GameObject
     cmp (GameObject PTR [esi]).sprite, 0 ;; Null check
     je SKIP
 
-    INVOKE RotateBlit, (GameObject PTR [esi]).sprite, (GameObject PTR [esi]).xcenter, (GameObject PTR [esi]).ycenter, (GameObject PTR [esi]).rotation
+    INVOKE FromFixedPoint, (GameObject PTR [esi]).xcenter
+    mov ebx, eax
+
+    INVOKE FromFixedPoint, (GameObject PTR [esi]).ycenter
+
+    INVOKE RotateBlit, (GameObject PTR [esi]).sprite, ebx, eax, (GameObject PTR [esi]).rotation
 SKIP:
     ret
 DrawGameObject ENDP
