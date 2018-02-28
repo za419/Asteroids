@@ -105,9 +105,79 @@ GameInit PROC USES eax edi
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 
+;; Draws a game object using RotateBlit, checking for null-ness
+DrawGameObject PROC USES eax ebx esi ptrObject:PTR GameObject
+
+    mov esi, ptrObject
+    cmp (GameObject PTR [esi]).sprite, 0 ;; Null check
+    je SKIP
+
+    INVOKE RotateBlit, (GameObject PTR [esi]).sprite, (GameObject PTR [esi]).xcenter, (GameObject PTR [esi]).ycenter, (GameObject PTR [esi]).rotation
+SKIP:
+    ret
+DrawGameObject ENDP
+
+;; Draws all game objects, in order
+DrawGame PROC
+
+    ;; Initializer
+    mov esi, OFFSET GameObjects
+    mov ecx, 0
+
+TOP: ;; Drawing loop
+    INVOKE DrawGameObject, esi
+    inc ecx
+    add esi, SIZEOF GameObject
+
+    ;; Condition
+    cmp ecx, OBJECTS_SIZE
+    jl TOP
+    ret
+DrawGame ENDP
+
+;; Ticks a game object
+UpdateGameObject PROC USES eax ptrObject:PTR GameObject
+
+    mov esi, ptrObject
+
+    ;; First, update x coordinate
+    INVOKE ToFixedPoint, (GameObject PTR [esi]).xcenter
+    INVOKE FixedAdd, eax, (GameObject PTR [esi]).xvelocity
+    mov (GameObject PTR [esi]).xcenter, eax
+
+    ;; Now, update y coordinate
+    INVOKE ToFixedPoint, (GameObject PTR [esi]).ycenter
+    INVOKE FixedAdd, eax, (GameObject PTR [esi]).yvelocity
+    mov (GameObject PTR [esi]).ycenter, eax
+
+    ;; Finally, update rotation
+    INVOKE FixedAdd, (GameObject PTR [esi]).rotation, (GameObject PTR [esi]).rvelocity
+    mov (GameObject PTR [esi]).rotation, eax
+    ret
+UpdateGameObject ENDP
+
+;; Updates all game objects, in order
+UpdateGame PROC
+
+    ;; Initializer
+    mov esi, OFFSET GameObjects
+    mov ecx, 0
+
+TOP: ;; Tick loop
+    INVOKE UpdateGameObject, esi
+    inc ecx
+    add esi, SIZEOF GameObject
+
+    ;; Condition
+    cmp ecx, OBJECTS_SIZE
+    jl TOP
+    ret
+UpdateGame ENDP
 
 GamePlay PROC
 
+    INVOKE DrawGame
+    INVOKE UpdateGame
 	ret         ;; Do not delete this line!!!
 GamePlay ENDP
 

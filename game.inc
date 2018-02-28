@@ -48,7 +48,7 @@ CheckIntersect PROTO oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:D
 
 ;; Game object structures
 GameObject STRUCT
-    sprite DWORD ? ;; Pointer to sprite representing this GameObject. Null if this is empty
+    sprite DWORD 0 ;; Pointer to sprite representing this GameObject. Null if this is empty
     xcenter DWORD ?
     ycenter DWORD ?
     xvelocity FXPT ?
