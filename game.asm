@@ -149,7 +149,7 @@ TOP: ;; Drawing loop
 DrawGame ENDP
 
 ;; Ticks a game object
-UpdateGameObject PROC USES eax ptrObject:PTR GameObject
+UpdateGameObject PROC USES eax esi ptrObject:PTR GameObject
 
     mov esi, ptrObject
     cmp (GameObject PTR [esi]).sprite, 0 ;; Null check
