@@ -214,6 +214,14 @@ BasicBlit ENDP
 RotateBlit PROC uses eax ebx ecx edx esi lpBmp:PTR EECS205BITMAP, xcenter:DWORD, ycenter:DWORD, angle:FXPT
     LOCAL cosa:FXPT, sina:FXPT, shiftX:SDWORD, shiftY:SDWORD, dstWidth:DWORD, dstX:DWORD, dstY:DWORD
     
+    ;; Slight optimization: Use BasicBlit for zero rotation
+    ;; This avoids a lot of slow fixed point math
+    cmp angle, 0
+    jne SKIP
+    INVOKE BasicBlit, lpBmp, xcenter, ycenter
+    jmp DONE
+    
+SKIP:
     ;; Okay, this part is weird.
     ;; I admit it. I have no excuse, only an explanation.
     ;; When I got RotateBlit working, the star rotated in the opposite direction of the arrow key.
