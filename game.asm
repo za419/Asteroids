@@ -91,10 +91,10 @@ GameInit PROC USES eax edi
     mov edi, OFFSET GameObjects
     mov (GameObject PTR [edi]).sprite, OFFSET fighter_000
 
-    INVOKE ToFixedPoint, 320
+    INVOKE ToFixedPoint, SCREEN_WIDTH/2
     mov (GameObject PTR [edi]).xcenter, eax
 
-    INVOKE ToFixedPoint, 240
+    INVOKE ToFixedPoint, SCREEN_HEIGHT/2
     mov (GameObject PTR [edi]).ycenter, eax
 
     mov (GameObject PTR [edi]).xvelocity, ONE
@@ -128,7 +128,7 @@ DrawGameObject ENDP
 DrawGame PROC USES ecx esi edi
 
     ;; Copy background bytes into the screen buffer
-    mov ecx, 640*480
+    mov ecx, SCREEN_WIDTH*SCREEN_HEIGHT
     mov esi, OFFSET background
     mov edi, ScreenBitsPtr
     rep movsb

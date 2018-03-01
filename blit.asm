@@ -63,14 +63,12 @@ Index2D ENDP
 
 DrawPixel PROC USES eax ebx x:DWORD, y:DWORD, color:DWORD
 
-    ;; Screen is 640 by 480.
-
     ;; Check for x out of range
-    cmp x, 639
+    cmp x, SCREEN_WIDTH-1
     ja ERROR ;; Unsigned compare means that negatives (sign bit set) are treated as very large numbers
 
     ;; Check for y out of range
-    cmp y, 479
+    cmp y, SCREEN_HEIGHT-1
     ja ERROR ;; Unsigned compare means that negatives (sign bit set) are treated as very large numbers
 
     ;; First, the address to write to
@@ -163,7 +161,7 @@ INNER: ;; Inner loop condition
     jl IINCR
 
     ;; IF (xcenter+dstX-halfwidth)>=639, do not draw
-    cmp eax, 639
+    cmp eax, SCREEN_WIDTH-1
     jge IINCR
 
     ;; If (ycenter+dstY-halfheight)<0, do not draw
@@ -174,7 +172,7 @@ INNER: ;; Inner loop condition
     jl IINCR
 
     ;; If (ycenter+dstY-halfheight)>=479, do not draw
-    cmp eax, 479
+    cmp eax, SCREEN_HEIGHT-1
     jge IINCR
 
     ;; If the target pixel is not transparent
@@ -348,7 +346,7 @@ INNER: ;; Inner loop condition
     jl IINCR
 
     ;; IF (xcenter+dstX-shiftX)>=639, do not draw
-    cmp eax, 639
+    cmp eax, SCREEN_WIDTH-1
     jge IINCR
 
     ;; If (ycenter+dstY-shiftY)<0, do not draw
@@ -359,7 +357,7 @@ INNER: ;; Inner loop condition
     jl IINCR
 
     ;; If (ycenter+dstY-shiftY)>=479, do not draw
-    cmp eax, 479
+    cmp eax, SCREEN_HEIGHT-1
     jge IINCR
 
     ;; If the target pixel is not transparent
