@@ -211,17 +211,146 @@ DONE: ;; Exiting the outer loop is just returning from the function
     ret
 BasicBlit ENDP
 
+UpsideDownBlit PROC USES eax ebx ecx edx esi edi ptrBitmap:PTR EECS205BITMAP , xcenter:DWORD, ycenter:DWORD
+    LOCAL halfwidth:SDWORD, halfheight:SDWORD, dstWidth:DWORD, dstX:DWORD, dstY:DWORD
+
+    ;; Use a register for faster lookup
+    mov esi, ptrBitmap
+
+    ;; Fill in local variables
+    ;; halfwidth
+    mov eax, (EECS205BITMAP PTR [esi]).dwWidth
+    shr eax, 1
+    mov halfwidth, eax
+
+    ;; halfheight
+    mov eax, (EECS205BITMAP PTR [esi]).dwHeight
+    shr eax, 1
+    mov halfheight, eax
+
+    ;; dstWidth
+    mov eax, (EECS205BITMAP PTR [esi]).dwWidth
+    add eax, (EECS205BITMAP PTR [esi]).dwHeight
+    mov dstWidth, eax
+
+    ;; For loops
+    ;; These are in the wrong order for proper cache coherency. But oh well
+    ;; Outer loop initializer
+    mov dstX, eax
+    neg dstX
+OUTER: ;; Outer loop condition
+    mov eax, dstX
+    cmp eax, dstWidth
+    jge DONE
+
+    ;; Inner loop initializer
+    mov eax, dstWidth
+    neg eax
+    mov dstY, eax
+INNER: ;; Inner loop condition
+    mov eax, dstY
+    cmp eax, dstWidth
+    jge OINCR ;; Jump to outer loop increment
+
+    ;; Inner loop
+    ;; Big condition chain on whether to draw
+    ;; If any of the conditions are false (since they are all AND'd together), skip to the inner increment (IINCR)
+    ;; If dstX<0, do not draw
+    mov edx, dstX
+    cmp edx, 0
+    jl IINCR
+
+    ;; if dstX>=bitmap width, do not draw
+    cmp edx, (EECS205BITMAP PTR [esi]).dwWidth
+    jge IINCR
+
+    ;; If dstY<0, do not draw
+    mov ebx, dstY
+    cmp ebx, 0
+    jl IINCR
+
+    ;; IF dstY>=bitmap height, do not draw
+    cmp ebx, (EECS205BITMAP PTR [esi]).dwHeight
+    jge IINCR
+
+    ;; If (xcenter+dstX-halfwidth)<0, do not draw
+    mov eax, xcenter
+    add eax, dstX
+    sub eax, halfwidth
+    cmp eax, 0
+    jl IINCR
+
+    ;; IF (xcenter+dstX-halfwidth)>=639, do not draw
+    cmp eax, SCREEN_WIDTH-1
+    jge IINCR
+
+    ;; If (ycenter+dstY-halfheight)<0, do not draw
+    mov eax, ycenter
+    add eax, dstY
+    sub eax, halfheight
+    cmp eax, 0
+    jl IINCR
+
+    ;; If (ycenter+dstY-halfheight)>=479, do not draw
+    cmp eax, SCREEN_HEIGHT-1
+    jge IINCR
+
+    ;; If the target pixel is not transparent
+    INVOKE Index2D, dstX, dstY, (EECS205BITMAP PTR [esi]).dwWidth
+    ;; eax holds the proper index into the array of pixels
+    mov ecx, (EECS205BITMAP PTR [esi]).lpBytes
+    mov al, BYTE PTR [ecx+eax] ;; al holds the bitmap pixel
+    cmp al, (EECS205BITMAP PTR [esi]).bTransparent
+    je IINCR
+
+    ;; If we're here, then we're allowed to draw
+    ;; We'll use ebx for x coordinate, and edx for y coordinate
+    ;; al holds our color value
+    ;; Compute x coordinate
+    mov ebx, xcenter
+    sub ebx, dstX
+    add ebx, halfwidth
+
+    ;; Compute y coordinate
+    mov edx, ycenter
+    sub edx, dstY
+    add edx, halfheight
+
+    ;; Now draw
+    INVOKE DrawPixel, ebx, edx, al
+    ;; Fallthrough to the increment
+IINCR: ;; Inner increment
+    inc dstY
+    jmp INNER
+
+OINCR: ;; Outer increment
+    inc dstX
+    jmp OUTER
+
+DONE: ;; Exiting the outer loop is just returning from the function
+    ret
+UpsideDownBlit ENDP
+
 RotateBlit PROC uses eax ebx ecx edx esi lpBmp:PTR EECS205BITMAP, xcenter:DWORD, ycenter:DWORD, angle:FXPT
     LOCAL cosa:FXPT, sina:FXPT, shiftX:SDWORD, shiftY:SDWORD, dstWidth:DWORD, dstX:DWORD, dstY:DWORD
-    
+
     ;; Slight optimization: Use BasicBlit for zero rotation
     ;; This avoids a lot of slow fixed point math
     cmp angle, 0
-    jne SKIP
+    jne SKIP0
     INVOKE BasicBlit, lpBmp, xcenter, ycenter
     jmp DONE
-    
-SKIP:
+
+SKIP0:
+    ;; Use UpsideDownBlit for about-half rotations
+    cmp angle, 205887+1608
+    jg SKIP1
+    cmp angle, 205887-1608
+    jl SKIP1
+    INVOKE UpsideDownBlit, lpBmp, xcenter, ycenter
+    jmp DONE
+
+SKIP1:
     ;; Okay, this part is weird.
     ;; I admit it. I have no excuse, only an explanation.
     ;; When I got RotateBlit working, the star rotated in the opposite direction of the arrow key.
@@ -239,7 +368,7 @@ SKIP:
     ;; It's probably stupid.
     ;; But!
     ;; It works.
-    
+
     ;; This assignment is going to be four days late in an hour, sue me.
 
     ;; Fill in local variables
