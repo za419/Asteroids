@@ -158,7 +158,7 @@ UpdateGameObject PROC USES eax ebx esi edi ptrObject:PTR GameObject
 
     ;; First, update x coordinate
     INVOKE FixedAdd, (GameObject PTR [esi]).xcenter, (GameObject PTR [esi]).xvelocity
-    ;; Wraparound: For simplicity (and added game difficulty, wraparound objects when they're entirely offscreen)
+    ;; Wraparound: For simplicity (and added game difficulty), wraparound objects when they're entirely offscreen
     mov ebx, eax
     mov eax, (EECS205BITMAP PTR [edi]).dwWidth
     INVOKE ToFixedPoint, eax
@@ -188,6 +188,32 @@ MOVX:
 
     ;; Now, update y coordinate
     INVOKE FixedAdd, (GameObject PTR [esi]).ycenter, (GameObject PTR [esi]).yvelocity
+    ;; Wraparound: For simplicity (and added game difficulty), wraparound objects when they're entirely offscreen
+    mov ebx, eax
+    mov eax, (EECS205BITMAP PTR [edi]).dwHeight
+    INVOKE ToFixedPoint, eax
+    INVOKE FixedMultiply, eax, HALF
+    neg eax
+    cmp ebx, eax ;; If center is a halfwidth past 0, wraparound
+    jge CND3
+    INVOKE FixedSubtract, SCREEN_HEIGHT_FXPT, eax ;; Rubberband: Can't go very far off screen
+    INVOKE FixedSubtract, eax, ONE
+    jmp MOVY
+
+CND3:
+    mov eax, (EECS205BITMAP PTR [edi]).dwHeight
+    INVOKE ToFixedPoint, eax
+    INVOKE FixedMultiply, eax, HALF
+    INVOKE FixedAdd, SCREEN_HEIGHT_FXPT, eax
+    xchg ebx, eax ;; So the jump will have correct eax
+    cmp eax, ebx ;; If center is a halfwidth past screen width, wraparound
+    jle MOVY
+    mov eax, (EECS205BITMAP PTR [edi]).dwHeight
+    INVOKE ToFixedPoint, eax
+    INVOKE FixedMultiply, eax, HALF
+    neg eax
+    ;; Fallthrough
+MOVY:
     mov (GameObject PTR [esi]).ycenter, eax
 
     ;; Finally, update rotation
