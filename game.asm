@@ -165,6 +165,31 @@ UpdateGameObject PROC USES eax ptrObject:PTR GameObject
 
     ;; Finally, update rotation
     INVOKE FixedAdd, (GameObject PTR [esi]).rotation, (GameObject PTR [esi]).rvelocity
+    ;; Ensure rotation does not exceed 2 pi or go under 0
+CND0:
+    cmp eax, ROTATION
+    jl CND1
+    cmp eax, TWO_PI
+    jg SUB0
+    ;; If rotation is almost, but not quite, 2pi, set it to zero (avoiding a bug with overrotated sprite draws)
+    mov (GameObject PTR [esi]).rotation, ZERO
+    jmp SKIP
+
+SUB0:
+    INVOKE FixedSubtract, eax, TWO_PI
+CND1:
+    cmp eax, EPSILON
+    jg MOVE
+    cmp eax, ZERO
+    jl ADD0
+    ;; If rotation is almost, but not quite, 0, set it to zero (avoiding a bug with underrotated sprite draws)
+    mov (GameObject PTR [esi]).rotation, ZERO
+    jmp SKIP
+
+ADD0:
+    INVOKE FixedAdd, eax, TWO_PI
+    jmp CND0 ;; Make sure that both conditions are simultaneously satisfied
+MOVE:
     mov (GameObject PTR [esi]).rotation, eax
 SKIP:
     ret
@@ -300,7 +325,7 @@ fighter_000 EECS205BITMAP <44, 37, 255,, offset fighter_000 + sizeof fighter_000
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
-    
+
 background BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,024h,02ah,013h,025h,000h
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h

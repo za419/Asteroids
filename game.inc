@@ -26,7 +26,10 @@ ONE = 00010000h
 HALF = 00008000h
 ZERO = 00000000h
 PI_HALF = 102943           	;;  PI / 2
-PI =  205887	                ;;  PI
+PI =  205887	            ;;  PI
+TWO_PI	= 411774
+ROTATION = 410166 ;; Threshold after which a rotation will be reset to zero (2*pi - pi/128)
+EPSILON = 1608 ;; Threshold after which a rotation will be reset to zero (pi/128)
 ROT_INC = 00000648h ;; Increment for rotation: PI/64
 ACCEL = 00002000h ;; Increment for linear acceleration: one quarter-pixel per frame
 
