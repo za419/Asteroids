@@ -42,7 +42,7 @@ CheckIntersect PROC USES ebx ecx edi esi oneX:DWORD, oneY:DWORD, oneBitmap:PTR E
 
     mov esi, oneBitmap
     mov edi, twoBitmap
-    
+
     ;; Null pointer checks (do not check collisions of null bitmaps)
     cmp esi, 0
     je FALSE ;; Nothing can't collide with something
@@ -113,8 +113,8 @@ GameInit PROC USES eax edi
     ;; Spawn the player with four frames of rotational velocity
     INVOKE FixedMultiply, ROT_INC, 0040000h
     mov (GameObject PTR [edi]).rvelocity, eax
-    
-    
+
+
     ;; Initialize the first asteroid
     add edi, SIZEOF GameObject
     mov (GameObject PTR [edi]).sprite, OFFSET asteroid_000
@@ -177,7 +177,7 @@ TOP: ;; Drawing loop
     ;; Condition
     cmp ecx, OBJECTS_SIZE
     jl TOP
-    
+
     ;; If the gameover object exists, draw it over everything
     ;; (It can't be in the GameObjects list, or else it would participate in collisions)
     mov esi, OFFSET endgame
@@ -294,7 +294,7 @@ GameOver PROC
     ;; Set the special endgame gameobject to show the endgame screen
     mov esi, OFFSET endgame
     mov (GameObject PTR [esi]).sprite, OFFSET gameover
-    
+
     ;; Properly center object
     INVOKE FixedMultiply, SCREEN_WIDTH_FXPT, HALF
     mov (GameObject PTR [esi]).xcenter, eax
@@ -313,15 +313,15 @@ CollideGameObject PROC USES esi edi eax ebx ecx ptrObject:PTR GameObject, index:
     mov esi, ptrObject
     cmp (GameObject PTR [esi]).sprite, 0 ;; Null check: Ignore collisions with non-drawing objects
     je EXIT
-    
+
     mov edi, ptrObject
     add edi, SIZEOF GameObject
     cmp (GameObject PTR [esi]).sprite, 0 ;; Null check: Ignore collisions with non-drawing objects
     je EXIT
-    
+
     mov ecx, index
     inc ecx ;; ecx has the index of the second object
-    
+
     ;; Locals setup
     INVOKE FromFixedPoint, (GameObject PTR [esi]).xcenter
     mov oneX, eax
@@ -329,7 +329,7 @@ CollideGameObject PROC USES esi edi eax ebx ecx ptrObject:PTR GameObject, index:
     mov oneY, eax
     ;; Now that we don't need the GameObject data from esi, set it to the sprite (as it's slightly faster to do so)
     mov esi, (GameObject PTR [esi]).sprite
-    
+
 TOP: ;; Collision loop
     INVOKE FromFixedPoint, (GameObject PTR [edi]).xcenter
     mov ebx, eax
@@ -339,12 +339,12 @@ TOP: ;; Collision loop
     jne COLLISION
     inc ecx
     add edi, SIZEOF GameObject
-    
+
     ;; Condition
     cmp ecx, OBJECTS_SIZE
     jl TOP
     jmp EXIT
-    
+
 COLLISION: ;; ptrObject collided with edi
     ;; For the time being, just 'delete' both objects
     ;; TODO: Recognition of player collision (for game over)
@@ -374,7 +374,7 @@ TOP: ;; Tick loop
 
     INVOKE UpdateGameObject, esi
     INVOKE CollideGameObject, esi, ecx
-    
+
      ;; Check for game over
     cmp ecx, 0
     jne SKIP
@@ -384,7 +384,48 @@ TOP: ;; Tick loop
 SKIP:
     inc ecx
     add esi, SIZEOF GameObject
-    
+
+    ;; Condition
+    cmp ecx, OBJECTS_SIZE
+    jl TOP
+
+    ;; Perform user interaction
+    mov esi, OFFSET GameObjects
+
+    cmp KeyPress, VK_LEFT
+    jne K1
+    INVOKE FixedAdd, (GameObject PTR [esi]).rvelocity, ROT_INC
+    mov (GameObject PTR [esi]).rvelocity, eax
+    jmp M1
+
+K1:
+    cmp KeyPress, VK_RIGHT
+    jne K2
+    INVOKE FixedSubtract, (GameObject PTR [esi]).rvelocity, ROT_INC
+    mov (GameObject PTR [esi]).rvelocity, eax
+    jmp M1
+
+K2: ;; TODO: This should accelerate the player
+    cmp KeyPress, VK_UP
+    jne M1
+
+M1: ;; TODO: This should accelerate the asteroid
+    mov edi, OFFSET MouseStatus
+    mov ecx, (MouseInfo PTR [edi]).buttons
+    and ecx, MK_LBUTTON
+    cmp ecx, 0
+    je EXIT
+    INVOKE FixedSin, (GameObject PTR [esi]).rotation
+    INVOKE FixedMultiply, eax, ACCEL
+    neg eax
+    INVOKE FixedAdd, eax, (GameObject PTR [esi]).xvelocity
+    mov (GameObject PTR [esi]).xvelocity, eax
+    INVOKE FixedCos, (GameObject PTR [esi]).rotation
+    INVOKE FixedMultiply, eax, ACCEL
+    neg eax
+    INVOKE FixedAdd, eax, (GameObject PTR [esi]).yvelocity
+    mov (GameObject PTR [esi]).yvelocity, eax
+
 EXIT:
     ret
 UpdateGame ENDP
@@ -2270,33 +2311,33 @@ gameover EECS205BITMAP <378, 79, 255,, offset gameover + sizeof gameover>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 	BYTE 000h,000h,000h,000h,000h,000h
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 fighter_000 EECS205BITMAP <44, 37, 255,, offset fighter_000 + sizeof fighter_000>
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
