@@ -30,7 +30,7 @@ PI =  205887	            ;;  PI
 TWO_PI	= 411774
 ROTATION = 410166 ;; Threshold after which a rotation will be reset to zero (2*pi - pi/128)
 EPSILON = 1608 ;; Threshold after which a rotation will be reset to zero (pi/128)
-ROT_INC = 00000648h ;; Increment for rotation: PI/64
+ROT_INC = 00000324h ;; Increment for rotation: PI/64
 ACCEL = 00002000h ;; Increment for linear acceleration: one eighth-pixel per frame
 
 ;; Library Functions
