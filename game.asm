@@ -19,6 +19,10 @@ include game.inc
 ;; Has keycodes
 include keys.inc
 
+;; For text drawing
+include \masm32\include\user32.inc
+includelib \masm32\lib\user32.lib
+
 OBJECTS_SIZE = 100 ;; Constant of max game objects
 
 .DATA?
@@ -38,23 +42,32 @@ SKIP:
     ret
 AbsoluteValue ENDP
 
-CheckIntersect PROC USES ebx ecx oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DWORD, twoY:DWORD, twoBitmap:PTR EECS205BITMAP
+CheckIntersect PROC USES ebx ecx edi esi oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DWORD, twoY:DWORD, twoBitmap:PTR EECS205BITMAP
+
+    mov esi, oneBitmap
+    mov edi, twoBitmap
+
+    ;; Null pointer checks (do not check collisions of null bitmaps)
+    cmp esi, 0
+    je FALSE ;; Nothing can't collide with something
+    cmp edi, 0
+    je FALSE ;; Nothing can't collide with something
 
     ;; ebx contains the sum of halfwidths as a DWORD (not FXPT)
-    INVOKE ToFixedPoint, (EECS205BITMAP PTR [oneBitmap]).dwWidth
+    INVOKE ToFixedPoint, (EECS205BITMAP PTR [esi]).dwWidth
     INVOKE FixedMultiply, eax, HALF
     mov ebx, eax
-    INVOKE ToFixedPoint, (EECS205BITMAP PTR [twoBitmap]).dwWidth
+    INVOKE ToFixedPoint, (EECS205BITMAP PTR [edi]).dwWidth
     INVOKE FixedMultiply, eax, HALF
     INVOKE FixedAdd, ebx, eax
     INVOKE FromFixedPoint, eax
     mov ebx, eax
 
     ;; ecx contains the sum of halfheights
-    INVOKE ToFixedPoint, (EECS205BITMAP PTR [oneBitmap]).dwHeight
+    INVOKE ToFixedPoint, (EECS205BITMAP PTR [esi]).dwHeight
     INVOKE FixedMultiply, eax, HALF
     mov ecx, eax
-    INVOKE ToFixedPoint, (EECS205BITMAP PTR [twoBitmap]).dwHeight
+    INVOKE ToFixedPoint, (EECS205BITMAP PTR [edi]).dwHeight
     INVOKE FixedMultiply, eax, HALF
     INVOKE FixedAdd, ecx, eax
     INVOKE FromFixedPoint, eax
@@ -65,14 +78,14 @@ CheckIntersect PROC USES ebx ecx oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BI
     sub eax, oneX
     INVOKE AbsoluteValue, eax
     cmp eax, ebx
-    jl FALSE
+    jge FALSE
 
     ;; If the difference between ycenters is greater than or equal to ecx, return 0
     mov eax, twoY
     sub eax, oneY
     INVOKE AbsoluteValue, eax
     cmp eax, ecx
-    jl FALSE
+    jge FALSE
 
     ;; If we get here, then there exists some overlap
     mov eax, 1
@@ -97,13 +110,36 @@ GameInit PROC USES eax edi
     INVOKE ToFixedPoint, SCREEN_HEIGHT/2
     mov (GameObject PTR [edi]).ycenter, eax
 
-    mov (GameObject PTR [edi]).xvelocity, ONE
+    mov (GameObject PTR [edi]).xvelocity, ZERO
     mov (GameObject PTR [edi]).yvelocity, ZERO
     mov (GameObject PTR [edi]).rotation, ZERO
 
     ;; Spawn the player with four frames of rotational velocity
     INVOKE FixedMultiply, ROT_INC, 0040000h
     mov (GameObject PTR [edi]).rvelocity, eax
+
+
+    ;; Initialize the first asteroid
+    add edi, SIZEOF GameObject
+    mov (GameObject PTR [edi]).sprite, OFFSET asteroid_000
+
+    INVOKE ToFixedPoint, SCREEN_WIDTH/4
+    mov (GameObject PTR [edi]).xcenter, eax
+
+    INVOKE ToFixedPoint, 3*SCREEN_HEIGHT/4
+    mov (GameObject PTR [edi]).ycenter, eax
+
+    mov (GameObject PTR [edi]).xvelocity, HALF
+    mov (GameObject PTR [edi]).yvelocity, HALF*-1
+    mov (GameObject PTR [edi]).rotation, ZERO
+
+    ;; Spawn the asteroid with two frames of rotational velocity
+    INVOKE FixedMultiply, ROT_INC, 0020000h
+    ;; NOTE: The game hangs if the asteroid is rotated outside of cardinal directions
+    ;; (that is, if the asteroid draw uses the general RotateBlit instead of a special case)
+    ;; THEREFORE, DO NOT SET rvelocity ON THE ASTEROID, AND DO NOT SET IT TO BE ROTATED OUT OF SPECIAL CASES
+    ;; TODO: Figure this out. The bug is in RotateBlit, as it works if general rotations are redirected to zero rotations (via BasicBlit).
+    mov (GameObject PTR [edi]).rvelocity, 0
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 
@@ -248,6 +284,61 @@ SKIP:
     ret
 UpdateGameObject ENDP
 
+;; Checks for collisions with all game objects, in order
+;; ptrObject is the first object to check collisions for (against all after it)
+;; Index is the index this object appears in in the GameObjects list
+;; Handles collisions by itself: Does not return a value
+;; If more than two objects collide simultaneously, only the first two in GameObjects are handled
+CollideGameObject PROC USES esi edi eax ebx ecx ptrObject:PTR GameObject, index:DWORD
+    LOCAL oneX:DWORD, oneY:DWORD
+
+    ;; Initializer
+    mov esi, ptrObject
+    cmp (GameObject PTR [esi]).sprite, 0 ;; Null check: Ignore collisions with non-drawing objects
+    je EXIT
+
+    mov edi, ptrObject
+    add edi, SIZEOF GameObject
+    cmp (GameObject PTR [esi]).sprite, 0 ;; Null check: Ignore collisions with non-drawing objects
+    je EXIT
+
+    mov ecx, index
+    inc ecx ;; ecx has the index of the second object
+
+    ;; Locals setup
+    INVOKE FromFixedPoint, (GameObject PTR [esi]).xcenter
+    mov oneX, eax
+    INVOKE FromFixedPoint, (GameObject PTR [esi]).ycenter
+    mov oneY, eax
+    ;; Now that we don't need the GameObject data from esi, set it to the sprite (as it's slightly faster to do so)
+    mov esi, (GameObject PTR [esi]).sprite
+
+TOP: ;; Collision loop
+    INVOKE FromFixedPoint, (GameObject PTR [edi]).xcenter
+    mov ebx, eax
+    INVOKE FromFixedPoint, (GameObject PTR [edi]).ycenter
+    INVOKE CheckIntersect, oneX, oneY, esi, ebx, eax, (GameObject PTR [edi]).sprite
+    cmp eax, 0
+    jne COLLISION
+    inc ecx
+    add edi, SIZEOF GameObject
+
+    ;; Condition
+    cmp ecx, OBJECTS_SIZE
+    jl TOP
+    jmp EXIT
+
+COLLISION: ;; ptrObject collided with edi
+    ;; For the time being, just 'delete' both objects
+    ;; TODO: Recognition of player collision (for game over)
+    mov (GameObject PTR [edi]).sprite, 0
+    mov esi, ptrObject
+    mov (GameObject PTR [esi]).sprite, 0
+    ;; Fallthrough
+EXIT:
+    ret
+CollideGameObject ENDP
+
 ;; Updates all game objects, in order
 UpdateGame PROC USES ecx esi
 
@@ -257,6 +348,9 @@ UpdateGame PROC USES ecx esi
 
 TOP: ;; Tick loop
     INVOKE UpdateGameObject, esi
+    INVOKE CollideGameObject, esi, ecx
+
+SKIP:
     inc ecx
     add esi, SIZEOF GameObject
 
