@@ -375,8 +375,15 @@ COND:
 
 COLLISION: ;; ptrObject collided with edi
     ;; For the time being, just 'delete' both objects
-    ;; TODO: Recognition of player collision (for game over)
+    INVOKE CheckFlag, (GameObject PTR [edi]).flags, COLLISION_NODELETE ;; Check for non-deleting object
+    cmp eax, 0
+    jne SKIP
     mov (GameObject PTR [edi]).sprite, 0
+    ;; Fallthrough
+SKIP:
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, COLLISION_NODELETE ;; Check for non-deleting object
+    cmp eax, 0
+    jne EXIT
     mov esi, ptrObject
     mov (GameObject PTR [esi]).sprite, 0
     ;; Fallthrough
