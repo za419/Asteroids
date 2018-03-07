@@ -452,10 +452,13 @@ SKIP:
     jl TOP
 
     ;; Perform user interaction
-    mov esi, OFFSET GameObjects
+    mov esi, OFFSET GameObjects ;; Use esi for the fighter sprite
+    mov edi, OFFSET GameObjects ;; Use EDI for the RCS bitmap
+    add edi, SIZEOF GameObject
 
     cmp KeyPress, VK_LEFT
     jne K1
+    mov (GameObject PTR [edi]).sprite, OFFSET rcs_ccw ;; Set RCS sprite
     INVOKE FixedAdd, (GameObject PTR [esi]).rvelocity, ROT_INC
     cmp eax, MAX_RVELOCITY
     jg M1 ;; Be nice to the player, and limit their rotational velocity to make it easier to maintain control
@@ -465,6 +468,7 @@ SKIP:
 K1:
     cmp KeyPress, VK_RIGHT
     jne K2
+    mov (GameObject PTR [edi]).sprite, OFFSET rcs_cw ;; Set RCS sprite
     INVOKE FixedSubtract, (GameObject PTR [esi]).rvelocity, ROT_INC
     cmp eax, -MAX_RVELOCITY
     jl M1 ;; Be nice to the player, and limit their rotational velocity to make it easier to maintain control
@@ -472,6 +476,8 @@ K1:
     jmp M1
 
 K2: ;; TODO: This should accelerate the player
+    ;; Since neither left or right is being pressed, clear the RCS bitmap
+    mov (GameObject PTR [edi]).sprite, 0
     cmp KeyPress, VK_UP
     jne M1
 
