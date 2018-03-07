@@ -41,12 +41,12 @@ AbsoluteValue ENDP
 ;; Returns nonzero if field has all bits in flag set, 0 otherwise
 CheckFlag PROC field:WORD, flag:WORD
 
-    mov eax, field
-    and eax, flag
+    mov ax, field
+    and ax, flag
     cmp eax, 0
     je EXIT
 
-    cmp eax, flag
+    cmp ax, flag
     je TRUE
     xor eax, eax
     jmp EXIT
@@ -134,6 +134,9 @@ GameInit PROC USES eax edi
     INVOKE FixedMultiply, ROT_INC, 0040000h
     mov (GameObject PTR [edi]).rvelocity, eax
 
+    ;; Player doesn't get any flags set
+    mov (GameObject PTR [edi]).flags, 0
+
 
     ;; Initialize the first asteroid
     add edi, SIZEOF GameObject
@@ -156,6 +159,9 @@ GameInit PROC USES eax edi
     ;; THEREFORE, DO NOT SET rvelocity ON THE ASTEROID, AND DO NOT SET IT TO BE ROTATED OUT OF SPECIAL CASES
     ;; TODO: Figure this out. The bug is in RotateBlit, as it works if general rotations are redirected to zero rotations (via BasicBlit).
     mov (GameObject PTR [edi]).rvelocity, 0
+
+    ;; Asteroid doesn't get any flags set
+    mov (GameObject PTR [edi]).flags, 0
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 
@@ -381,10 +387,10 @@ COLLISION: ;; ptrObject collided with edi
     mov (GameObject PTR [edi]).sprite, 0
     ;; Fallthrough
 SKIP:
+    mov esi, ptrObject
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, COLLISION_NODELETE ;; Check for non-deleting object
     cmp eax, 0
     jne EXIT
-    mov esi, ptrObject
     mov (GameObject PTR [esi]).sprite, 0
     ;; Fallthrough
 EXIT:
