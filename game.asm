@@ -462,9 +462,15 @@ M1: ;; TODO: This should accelerate the asteroid
     je NOPRESS
 
     ;; Set engines-on fighter sprite
+    ;; Choice of sprite varies per-frame, starting on fighter_002
+    cmp (GameObject PTR [esi]).sprite, OFFSET fighter_002
+    jne ODD
+    mov (GameObject PTR [esi]).sprite, OFFSET fighter_001
+    jmp ACCELERATE
+ODD:
     mov (GameObject PTR [esi]).sprite, OFFSET fighter_002
-
-    ;; Accelerate fighter
+    ;; Fallthrough
+ACCELERATE: ;; Accelerate fighter
     INVOKE FixedSin, (GameObject PTR [esi]).rotation
     INVOKE FixedMultiply, eax, ACCEL
     neg eax
