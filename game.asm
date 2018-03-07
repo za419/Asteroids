@@ -38,6 +38,26 @@ SKIP:
     ret
 AbsoluteValue ENDP
 
+;; Returns nonzero if field has all bits in flag set, 0 otherwise
+CheckFlag PROC field:WORD, flag:WORD
+
+    mov eax, field
+    and eax, flag
+    cmp eax, 0
+    je EXIT
+
+    cmp eax, flag
+    je TRUE
+    xor eax, eax
+    jmp EXIT
+
+TRUE:
+    mov eax, 1
+    ;; Fallthrough
+EXIT:
+    ret
+CheckFlag ENDP
+
 CheckIntersect PROC USES ebx ecx edi esi oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DWORD, twoY:DWORD, twoBitmap:PTR EECS205BITMAP
 
     mov esi, oneBitmap
@@ -313,6 +333,9 @@ CollideGameObject PROC USES esi edi eax ebx ecx ptrObject:PTR GameObject, index:
     mov esi, ptrObject
     cmp (GameObject PTR [esi]).sprite, 0 ;; Null check: Ignore collisions with non-drawing objects
     je EXIT
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, COLLISION_IGNORE ;; Check for non-colliding object
+    cmp eax, 0
+    jne EXIT
 
     mov edi, ptrObject
     add edi, SIZEOF GameObject
@@ -331,6 +354,10 @@ CollideGameObject PROC USES esi edi eax ebx ecx ptrObject:PTR GameObject, index:
     mov esi, (GameObject PTR [esi]).sprite
 
 TOP: ;; Collision loop
+    INVOKE CheckFlag, (GameObject PTR [edi]).flags, COLLISION_IGNORE ;; Check for non-colliding objects
+    cmp eax, 0
+    jne COND
+
     INVOKE FromFixedPoint, (GameObject PTR [edi]).xcenter
     mov ebx, eax
     INVOKE FromFixedPoint, (GameObject PTR [edi]).ycenter
@@ -340,6 +367,7 @@ TOP: ;; Collision loop
     inc ecx
     add edi, SIZEOF GameObject
 
+COND:
     ;; Condition
     cmp ecx, OBJECTS_SIZE
     jl TOP
