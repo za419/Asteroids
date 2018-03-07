@@ -485,7 +485,7 @@ GamePlay ENDP
 ;; Sprite bitmaps
 .DATA
 
-endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO>
+endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0>
 
 gameover EECS205BITMAP <378, 79, 255,, offset gameover + sizeof gameover>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
