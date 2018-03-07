@@ -25,6 +25,9 @@ FixedAdd      PROTO STDCALL a:FXPT, b:FXPT
 .DATA
 
     ONE_HALF = 00008000h ;; One half as a fixed point
+    SAVE DWORD 5 ;; Save location for esp
+    BSAVE DWORD 5 ;; Save location for ebp
+    ;; Those last two comments sound insane, I know. See my comment in RotateBlit
 
 .CODE
 
@@ -580,6 +583,17 @@ RightBlit ENDP
 RotateBlit PROC uses eax ebx ecx edx esi lpBmp:PTR EECS205BITMAP, xcenter:DWORD, ycenter:DWORD, angle:FXPT
     LOCAL cosa:FXPT, sina:FXPT, shiftX:SDWORD, shiftY:SDWORD, dstWidth:DWORD, dstX:DWORD, dstY:DWORD
 
+    ;; FOR SOME UNGODLY REASON...
+    ;; This function messes up esp and/or ebp.
+    ;; In such a way that actually running the draw code twice hangs forever on the second time. Probably because it returns to the wrong address.
+    ;; I can't figure out why. It's probably not a good thing.
+    ;; But I can remove the worst of the symptoms, by saving the values here and restoring them before return
+    ;; .... Yeah, I dunno either
+    mov edi, OFFSET SAVE
+    mov [edi], esp
+    mov edi, OFFSET BSAVE
+    mov [edi], ebp
+
     ;; Slight optimization: Use BasicBlit for about zero rotation
     ;; This avoids a lot of slow fixed point math
     cmp angle, EPSILON
@@ -797,6 +811,12 @@ OINCR: ;; Outer increment
     jmp OUTER
 
 DONE: ;; Exiting the outer loop is same as returning
+    ;; Restore esp and ebp
+    ;; See above for why that's not as stupid as it sounds (is?)
+    mov edi, OFFSET SAVE
+    mov esp, [edi]
+    mov edi, OFFSET BSAVE
+    mov ebp, [edi]
 	ret 			; Don't delete this line!!!
 RotateBlit ENDP
 
