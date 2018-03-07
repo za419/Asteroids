@@ -459,7 +459,12 @@ M1: ;; TODO: This should accelerate the asteroid
     mov ecx, (MouseInfo PTR [edi]).buttons
     and ecx, MK_LBUTTON
     cmp ecx, 0
-    je EXIT
+    je NOPRESS
+
+    ;; Set engines-on fighter sprite
+    mov (GameObject PTR [esi]).sprite, OFFSET fighter_002
+
+    ;; Accelerate fighter
     INVOKE FixedSin, (GameObject PTR [esi]).rotation
     INVOKE FixedMultiply, eax, ACCEL
     neg eax
@@ -470,7 +475,11 @@ M1: ;; TODO: This should accelerate the asteroid
     neg eax
     INVOKE FixedAdd, eax, (GameObject PTR [esi]).yvelocity
     mov (GameObject PTR [esi]).yvelocity, eax
+    jmp EXIT
 
+NOPRESS: ;; Set normal fighter sprite
+    mov (GameObject PTR [esi]).sprite, OFFSET fighter_000
+    ;; Fallthrough
 EXIT:
     ret
 UpdateGame ENDP
@@ -2493,10 +2502,10 @@ fighter_000 EECS205BITMAP <44, 37, 255,, offset fighter_000 + sizeof fighter_000
 
 
 
-    
-    
-    
-    
+
+
+
+
 fighter_001 EECS205BITMAP <41, 45, 255,, offset fighter_001 + sizeof fighter_001>
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
@@ -2614,17 +2623,6 @@ fighter_001 EECS205BITMAP <41, 45, 255,, offset fighter_001 + sizeof fighter_001
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-   
 
 
 
@@ -2650,8 +2648,19 @@ fighter_001 EECS205BITMAP <41, 45, 255,, offset fighter_001 + sizeof fighter_001
 
 
 
-   
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
 fighter_002 EECS205BITMAP <41, 41, 255,, offset fighter_002 + sizeof fighter_002>
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 	BYTE 0ffh,0ffh,0ffh,049h,049h,024h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
@@ -2760,8 +2769,8 @@ fighter_002 EECS205BITMAP <41, 41, 255,, offset fighter_002 + sizeof fighter_002
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
 	BYTE 0ffh
 
-    
-    
+
+
 
 
 
