@@ -67,3 +67,17 @@ GameObject STRUCT
     ;; For example, a (theoretical) object could specify that it requires scaling in the flags, store a fixed88 in the tag, and then use the extra pointer for mipmapping or specification of a scaling algorithm
     ;; Or, a black hole could store its radius in pixels in the tag, be identified by the flag bits, and use pExtra to store information on how to calculate forces with it
 GameObject ENDS
+
+;; GameObject flags
+GRAVITATIONAL_OBJECT = 1 ;; Enables the application of gravity between all gameobjects in the array and this one (note that acceleration will not be applied to this object)
+                         ;;             If this is set, pExtra must point to a GravitationalObject struct specifying how to calculate this acceleration
+COLLISION_NODELETE = 2 ;; Prevents the object from being deleted upon collision with another object (The other object may be deleted, but this one will suffer no ill effect)
+COLLISION_IGNORE = 4 ;; Prevents the object from participating in collisions at all (Collision checking will be skipped entirely on objects with this flag set)
+
+GravitationalObject STRUCT
+    maxrad FXPT 00640000h ;; Optimization: Do not calculate acceleration of objects whose center is this many pixels from our own. Set to 0 to disable
+    acceleration FXPT ONE ;; Product of mass and the universal gravitational constant G
+    scaling FXPT ONE ;; Multiplied by acceleration after it is calculated. No effect on objects outside maxrad
+    adjustment FXPT ZERO ;; Added to acceleration after scaling. Can effect objects outside maxrad
+    ;; These last two allow unphysical objects, which can have some interesting effects - For example, an object which pulls everything on screen towards it equally, or a forcefield which repels objects
+GravitationalObject ENDS
