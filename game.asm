@@ -126,7 +126,7 @@ GameInit PROC USES eax edi
     mov (GameObject PTR [edi]).ycenter, eax
 
     mov (GameObject PTR [edi]).xvelocity, HALF
-    mov (GameObject PTR [edi]).yvelocity, HALF*-1
+    mov (GameObject PTR [edi]).yvelocity, -HALF
     mov (GameObject PTR [edi]).rotation, ZERO
 
     ;; Spawn the asteroid with two frames of rotational velocity
@@ -395,6 +395,8 @@ SKIP:
     cmp KeyPress, VK_LEFT
     jne K1
     INVOKE FixedAdd, (GameObject PTR [esi]).rvelocity, ROT_INC
+    cmp eax, MAX_RVELOCITY
+    jg M1 ;; Be nice to the player, and limit their rotational velocity to make it easier to maintain control
     mov (GameObject PTR [esi]).rvelocity, eax
     jmp M1
 
@@ -402,6 +404,8 @@ K1:
     cmp KeyPress, VK_RIGHT
     jne K2
     INVOKE FixedSubtract, (GameObject PTR [esi]).rvelocity, ROT_INC
+    cmp eax, -MAX_RVELOCITY
+    jl M1 ;; Be nice to the player, and limit their rotational velocity to make it easier to maintain control
     mov (GameObject PTR [esi]).rvelocity, eax
     jmp M1
 
