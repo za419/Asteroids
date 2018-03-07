@@ -161,13 +161,9 @@ GameInit PROC USES eax edi
     mov (GameObject PTR [edi]).yvelocity, -HALF
     mov (GameObject PTR [edi]).rotation, ZERO
 
-    ;; Spawn the asteroid with two frames of rotational velocity
-    INVOKE FixedMultiply, ROT_INC, 0020000h
-    ;; NOTE: The game hangs if the asteroid is rotated outside of cardinal directions
-    ;; (that is, if the asteroid draw uses the general RotateBlit instead of a special case)
-    ;; THEREFORE, DO NOT SET rvelocity ON THE ASTEROID, AND DO NOT SET IT TO BE ROTATED OUT OF SPECIAL CASES
-    ;; TODO: Figure this out. The bug is in RotateBlit, as it works if general rotations are redirected to zero rotations (via BasicBlit).
-    mov (GameObject PTR [edi]).rvelocity, 0
+    ;; Spawn the asteroid with just over one threshold of rotational velocity
+    INVOKE FixedAdd, EPSILON, ROT_INC
+    mov (GameObject PTR [edi]).rvelocity, eax
 
     ;; Asteroid doesn't get any flags set
     mov (GameObject PTR [edi]).flags, 0
@@ -233,7 +229,7 @@ UpdateGameObject PROC USES eax ebx esi edi ptrObject:PTR GameObject
 
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, COPY_TRANSFORMS ;; Handle following objects
     cmp eax, 0
-    jne TRANSFORM
+    je TRANSFORM
 
     mov edi, (GameObject PTR [esi]).pExtra ;; GameObject whose transforms we're copying
     ;; Copy xcenter, ycenter, and rotation from edi to esi
@@ -394,10 +390,11 @@ TOP: ;; Collision loop
     INVOKE CheckIntersect, oneX, oneY, esi, ebx, eax, (GameObject PTR [edi]).sprite
     cmp eax, 0
     jne COLLISION
+
+COND:
     inc ecx
     add edi, SIZEOF GameObject
 
-COND:
     ;; Condition
     cmp ecx, OBJECTS_SIZE
     jl TOP
