@@ -59,6 +59,11 @@ GameObject STRUCT
     yvelocity FXPT ?
     rotation FXPT ?
     rvelocity FXPT ?
+    ;; Metadata
+    flags WORD 0 ;; Checks on various conditions set - 0 is equivalent to "General".
+    tag WORD 0 ;; Extra data which can be used for storage related to this object
+    pExtra DWORD 0 ;; Pointer to a structure containing even more data this object might need
+    ;; Interpretation of the last 48 bits is entirely dependent on the 16 flag bits
+    ;; For example, a (theoretical) object could specify that it requires scaling in the flags, store a fixed88 in the tag, and then use the extra pointer for mipmapping or specification of a scaling algorithm
+    ;; Or, a black hole could store its radius in pixels in the tag, be identified by the flag bits, and use pExtra to store information on how to calculate forces with it
 GameObject ENDS
-
-
