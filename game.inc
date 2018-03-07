@@ -73,6 +73,9 @@ GRAVITATIONAL_OBJECT = 1 ;; Enables the application of gravity between all gameo
                          ;;             If this is set, pExtra must point to a GravitationalObject struct specifying how to calculate this acceleration
 COLLISION_NODELETE = 2 ;; Prevents the object from being deleted upon collision with another object (The other object may be deleted, but this one will suffer no ill effect)
 COLLISION_IGNORE = 4 ;; Prevents the object from participating in collisions at all (Collision checking will be skipped entirely on objects with this flag set)
+COPY_TRANSFORMS = 8 ;; The object shall maintain the same rotation and location as the one pointed to by pExtra.
+                    ;; I highly recommend also applying COLLISION_IGNORE, since, well...... Both colliding immediately is bad, unless for some reason you're using this to force a collision?
+                    ;; Objects with this set will not have acceleration applied to them whatsoever (so if they precede their target by update order, they will lag it by a frame)
 
 GravitationalObject STRUCT
     maxrad FXPT 00640000h ;; Optimization: Do not calculate acceleration of objects whose center is this many pixels from our own. Set to 0 to disable

@@ -137,6 +137,15 @@ GameInit PROC USES eax edi
     ;; Player doesn't get any flags set
     mov (GameObject PTR [edi]).flags, 0
 
+    ;; Special object for showing RCS exhaust for fighter rotation (must immediately follow the player)
+    add edi, SIZEOF GameObject
+    ;; Start with no sprite
+    ;; No transforms (handled by flag)
+    ;; No velocities (Overridden by flag)
+    ;; Ignores collisions, and copies transforms of the player
+    mov (GameObject PTR [edi]).flags, COPY_TRANSFORMS
+    or (GameObject PTR [edi]).flags, COLLISION_IGNORE
+    mov (GameObject PTR [edi]).pExtra, OFFSET GameObjects
 
     ;; Initialize the first asteroid
     add edi, SIZEOF GameObject
@@ -222,6 +231,21 @@ UpdateGameObject PROC USES eax ebx esi edi ptrObject:PTR GameObject
     cmp edi, 0 ;; Null check
     je SKIP
 
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, COPY_TRANSFORMS ;; Handle following objects
+    cmp eax, 0
+    jne TRANSFORM
+
+    mov edi, (GameObject PTR [esi]).pExtra ;; GameObject whose transforms we're copying
+    ;; Copy xcenter, ycenter, and rotation from edi to esi
+    mov ebx, (GameObject PTR [edi]).xcenter
+    mov (GameObject PTR [esi]).xcenter, ebx
+    mov ebx, (GameObject PTR [edi]).ycenter
+    mov (GameObject PTR [esi]).ycenter, ebx
+    mov ebx, (GameObject PTR [edi]).rotation
+    mov (GameObject PTR [esi]).rotation, ebx
+    jmp SKIP ;; Do not perform normal update
+
+TRANSFORM:
     ;; First, update x coordinate
     INVOKE FixedAdd, (GameObject PTR [esi]).xcenter, (GameObject PTR [esi]).xvelocity
     ;; Wraparound: For simplicity (and added game difficulty), wraparound objects when they're entirely offscreen
