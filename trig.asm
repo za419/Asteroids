@@ -116,9 +116,9 @@ LOOKUP: ;; angle<pi/2
     INVOKE FixedMultiply, angle, PI_INC_RECIP ;; Calculate the table index
     INVOKE FixedAdd, eax, ROUND_FACTOR ;; Round away from zero
     shr eax, 15 ;; Shift out the decimal part (round-to-zero)
+    and eax, 0fffffffeh ;; Make sure the index is on a word boundary
     mov ebx, OFFSET SINTAB
     add ebx, eax
-    ;;add ebx, eax ;; Yes, twice. SINTAB is an array of words, eax is a simple index
     movzx eax, WORD PTR [ebx] ;; Dereference and move result into eax
     ;; Fallthrough to exit
 EXIT:
