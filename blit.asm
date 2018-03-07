@@ -14,6 +14,7 @@ include stars.inc
 include lines.inc
 include trig.inc
 include blit.inc
+include game.inc
 
 ;; Prototypes for helpers in trig.asm
 FixedMultiply PROTO STDCALL a:FXPT, b:FXPT
@@ -581,36 +582,36 @@ RotateBlit PROC uses eax ebx ecx edx esi lpBmp:PTR EECS205BITMAP, xcenter:DWORD,
 
     ;; Slight optimization: Use BasicBlit for about zero rotation
     ;; This avoids a lot of slow fixed point math
-    cmp angle, 1608
+    cmp angle, EPSILON
     jg SKIP0
-    cmp angle, -1608
+    cmp angle, -EPSILON
     jl SKIP0
     INVOKE BasicBlit, lpBmp, xcenter, ycenter
     jmp DONE
 
 SKIP0:
     ;; Use UpsideDownBlit for about-half rotations
-    cmp angle, 205887+1608
+    cmp angle, 205887+EPSILON
     jg SKIP1
-    cmp angle, 205887-1608
+    cmp angle, 205887-EPSILON
     jl SKIP1
     INVOKE UpsideDownBlit, lpBmp, xcenter, ycenter
     jmp DONE
 
 SKIP1:
     ;; Use LeftBlit for about one-quarter rotations
-    cmp angle, 102943+1608
+    cmp angle, 102943+EPSILON
     jg SKIP2
-    cmp angle, 102943-1608
+    cmp angle, 102943-EPSILON
     jl SKIP2
     INVOKE LeftBlit, lpBmp, xcenter, ycenter
     jmp DONE
 
 SKIP2:
     ;; Use RightBlit for about three-quarter rotations
-    cmp angle, 308831+1608
+    cmp angle, 308831+EPSILON
     jg SKIP3
-    cmp angle, 308831-1608
+    cmp angle, 308831-EPSILON
     jl SKIP3
     INVOKE RightBlit, lpBmp, xcenter, ycenter
     jmp DONE
