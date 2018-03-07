@@ -222,11 +222,6 @@ DrawGame ENDP
 ;; Ticks a game object
 UpdateGameObject PROC USES eax ebx esi edi ptrObject:PTR GameObject
 
-    mov esi, ptrObject
-    mov edi, (GameObject PTR [esi]).sprite
-    cmp edi, 0 ;; Null check
-    je SKIP
-
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, COPY_TRANSFORMS ;; Handle following objects
     cmp eax, 0
     je TRANSFORM
@@ -242,6 +237,11 @@ UpdateGameObject PROC USES eax ebx esi edi ptrObject:PTR GameObject
     jmp SKIP ;; Do not perform normal update
 
 TRANSFORM:
+    mov esi, ptrObject
+    mov edi, (GameObject PTR [esi]).sprite
+    cmp edi, 0 ;; Null check
+    je SKIP
+    
     ;; First, update x coordinate
     INVOKE FixedAdd, (GameObject PTR [esi]).xcenter, (GameObject PTR [esi]).xvelocity
     ;; Wraparound: For simplicity (and added game difficulty), wraparound objects when they're entirely offscreen
