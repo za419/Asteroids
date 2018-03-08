@@ -41,6 +41,16 @@ FixedMultiply PROC USES edx a:FXPT, b:FXPT
     ret
 FixedMultiply ENDP
 
+;; Handles fixed-point division
+FixedDivide PROC USES edx a:FXPT, b:FXPT
+
+    shl a, 16 ;; Offset x so that we get the correct representation
+    xor edx,edx
+    mov eax, a
+    idiv b ;; Placing the correct quotient in eax
+    ret
+FixedDivide ENDP
+
 ;; Handles fixed-point subtraction
 ;; (so if I make a mistake I can easily change this function to fix it)
 FixedSubtract PROC a:FXPT, b:FXPT

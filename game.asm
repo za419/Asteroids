@@ -60,6 +60,46 @@ EXIT:
     ret
 CheckFlag ENDP
 
+;; Returns distance squared between two points, as an FXPT
+SquareDistance PROC USES ebx oneX:FXPT, oneY:FXPT, twoX:FXPT, twoY:FXPT
+    
+    ;; First, calculate squares of differences
+    INVOKE FixedSubtract, oneX, twoX
+    INVOKE FixedMultiply, eax, eax
+    mov ebx, eax
+    INVOKE FixedSubtract, oneY, twoY
+    INVOKE FixedMultiply, eax, eax
+    INVOKE FixedAdd, ebx, eax
+    
+    ;; eax now has the square of the distance
+    ret
+SquareDistance ENDP
+
+;; Returns approximate square root of a DWORD
+SquareRoot PROC USES ebx ecx edx esi edi x:DWORD
+    ;; Remove MSB, approximate the square root of what's left
+    mov eax, x
+    bsr ecx, eax
+    mov ebx, 1
+    mov edx, ecx
+    shr ecx, 1
+    shl ebx, cl
+
+    ;; Not quite good enough. We should use a second iteration to get a decent value
+    mov esi, 1
+    mov ecx, edx
+    shl esi, cl
+
+    sub eax, esi
+    bsr ecx, eax
+    shr ecx, 1
+    mov edi, 1
+    shl edi, cl
+    or ebx, edi
+    mov eax, ebx
+    ret
+SquareRoot ENDP
+
 CheckIntersect PROC USES ebx ecx edi esi oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DWORD, twoY:DWORD, twoBitmap:PTR EECS205BITMAP
 
     mov esi, oneBitmap
@@ -177,7 +217,7 @@ GameInit PROC USES eax edi
     mov (GameObject PTR [edi]).ycenter, ZERO
 
     ;; Blackhole starts out moving down at left, but not directly at the player like the asteroid does
-    mov (GameObject PTR [edi]).xvelocity, ONE
+    mov (GameObject PTR [edi]).xvelocity, 2*ONE
     mov (GameObject PTR [edi]).yvelocity, 2*ACCEL
 
     ;; Rotation is unimportant: Blackholes are symmetrical
@@ -256,8 +296,101 @@ SKIP:
     ret
 DrawGame ENDP
 
+;; Performs acceleration of all objects towards this GameObject, if it is a GravitationalObject
+AttractGameObject PROC USES eax ebx ecx edx esi edi ptrObject:PTR GameObject
+    LOCAL xcenter:FXPT, ycenter:FXPT
+
+    mov esi, ptrObject
+
+    ;; Only perform attraction with objects that have that flag set
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, GRAVITATIONAL_OBJECT
+    cmp eax, 0
+    je EXIT
+
+    ;; Don't accelerate towards non-drawing objects
+    cmp (GameObject PTR [esi]).sprite, 0
+    je EXIT
+
+    ;; If we're here, we should perform acceleration
+    mov eax, (GameObject PTR [esi]).xcenter
+    mov xcenter, eax
+    mov eax, (GameObject PTR [esi]).ycenter
+    mov ycenter, eax
+
+    mov esi, (GameObject PTR [esi]).pExtra ;; esi points to the GravitationalObject struct
+
+    mov edi, OFFSET GameObjects
+    xor ecx, ecx
+
+TOP: ;; Attraction loop
+
+    ;; Don't bother accelerating objects which copy transforms - That can only result in bugs
+    INVOKE CheckFlag, (GameObject PTR [edi]).flags, COPY_TRANSFORMS
+    cmp eax, 0
+    je COND
+    
+    ;; Don't bother accelerating non-drawing objects
+    cmp (GameObject PTR [edi]).sprite, 0
+    je COND
+    
+    ;; Don't accelerate objects outside our sphere-of-influence, so to speak
+    ;; Squared maximum distance
+    cmp (GravitationalObject PTR [esi]).maxrad, 0
+    jle NORAD ;; Skip radius check
+    INVOKE FixedMultiply, (GravitationalObject PTR [esi]).maxrad, (GravitationalObject PTR [esi]).maxrad
+    mov ebx, eax
+    INVOKE SquareDistance, xcenter, ycenter, (GameObject PTR [edi]).xcenter, (GameObject PTR [edi]).ycenter
+    cmp eax, ebx
+    jg COND
+    jmp ACCELERATE
+    
+NORAD: ;; Calculate square distance anyway
+    INVOKE SquareDistance, xcenter, ycenter, (GameObject PTR [edi]).xcenter, (GameObject PTR [edi]).ycenter
+    
+ACCELERATE:
+    ;; Conveniently, eax holds the square distance between the objects, which we need to calculate acceration
+    ;; g=mG/r^2, or in our case, acceleration=(esi.acceleration)/eax
+    xchg eax, ebx ;; We'll need the square distance later
+    INVOKE FixedDivide, (GravitationalObject PTR [esi]).acceleration, ebx
+    mov edx, eax
+    ;; edx now holds the scalar acceleration
+    
+    ;; We now have to calculate which direction to apply it in
+    ;; Start with x
+    INVOKE FromFixedPoint, ebx ;; Unfortunately, for performance reasons, square root takes an integer
+    INVOKE SquareRoot, eax ;; True distance, for unit vectors
+    INVOKE ToFixedPoint, eax
+    mov ebx, eax
+    INVOKE FixedSubtract, (GameObject PTR [edi]).xcenter, xcenter ;; Vector along x
+    INVOKE FixedDivide, eax, ebx ;; Unit vector component along x
+    INVOKE FixedMultiply, eax, edx ;; Acceleration along x
+    INVOKE FixedAdd, eax, (GameObject PTR [edi]).xvelocity ;; Accelerated xvelocity
+    mov (GameObject PTR [edi]).xvelocity, eax
+    
+    ;; Same deal for y
+    INVOKE FixedSubtract, (GameObject PTR [edi]).ycenter, ycenter ;; Vector along y
+    INVOKE FixedDivide, eax, ebx ;; Unit vector component along y
+    INVOKE FixedMultiply, eax, edx ;; Acceleration along y
+    INVOKE FixedAdd, eax, (GameObject PTR [edi]).yvelocity ;; Accelerated yvelocity
+    mov (GameObject PTR [edi]).yvelocity, eax
+    ;; Fallthrough
+COND:
+    inc ecx
+    add edi, SIZEOF GameObject
+
+    ;; Condition
+    cmp ecx, OBJECTS_SIZE
+    jl TOP
+    jmp EXIT
+EXIT:
+    ret
+AttractGameObject ENDP
+
 ;; Ticks a game object
 UpdateGameObject PROC USES eax ebx esi edi ptrObject:PTR GameObject
+
+    ;; Attempt to apply gravity
+    INVOKE AttractGameObject, ptrObject
 
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, COPY_TRANSFORMS ;; Handle following objects
     cmp eax, 0
@@ -648,7 +781,7 @@ GamePlay ENDP
 paused BYTE 0
 SinceFire DWORD -1 ;; In frames
 
-blackhole_data GravitationalObject <, 300*ACCEL, ONE, ZERO>
+blackhole_data GravitationalObject <0, 07fffffffh, ONE, ZERO>
 
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0>
 
