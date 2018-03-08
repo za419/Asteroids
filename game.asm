@@ -559,7 +559,7 @@ M1:
     
     ;; Do not fire if the blaster is cooling down
     cmp SinceFire, BLAST_COOLDOWN
-    jl EXIT
+    jb EXIT
     mov SinceFire, 0 ;; Place the blaster on cooldown
 
     cmp SpawnedObjects, OBJECTS_SIZE ;; Make sure we don't overflow the array
@@ -625,7 +625,7 @@ GamePlay ENDP
 .DATA
 
 paused BYTE 0
-SinceFire DWORD 0 ;; In frames
+SinceFire DWORD -1 ;; In frames
 
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0>
 
