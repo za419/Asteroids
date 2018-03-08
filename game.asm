@@ -431,6 +431,23 @@ CollideGameObject ENDP
 ;; Updates all game objects, in order
 UpdateGame PROC USES ecx esi edi
 
+CHECK:    ;; Don't update when the game is paused
+    cmp paused, 0
+    jle UPDATE
+    inc paused ;; Paused counts how many frames the game has been paused for
+    cmp KeyPress, VK_P
+    jne EXIT
+    cmp paused, MIN_PAUSE
+    jle EXIT ;; Game will not unpause in the first 15 frames
+    mov paused, -MIN_PAUSE
+    mov KeyPress, 0 ;; Do not take keyboard on the first frame after unpause
+
+UPDATE:
+    cmp paused, 0
+    je ENABLE
+    inc paused
+    
+ENABLE:
     ;; Stop performing updates if the game is over
     mov esi, OFFSET endgame
     cmp (GameObject PTR [esi]).sprite, 0
@@ -493,10 +510,10 @@ K2: ;; TODO: This should accelerate the player
     jne K3
     jmp M1
 
-K3: ;; Pause/unpause game
-    cmp KeyPress, VK_ESCAPE
+K3:
+    cmp KeyPress, VK_P
     jne M1
-    xor paused, 1
+    mov paused, 1
 
 M1: ;; TODO: This should accelerate the asteroid
     mov edi, OFFSET MouseStatus

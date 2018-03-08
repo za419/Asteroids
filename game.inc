@@ -33,6 +33,7 @@ EPSILON = 1608 ;; Threshold after which a rotation will be reset to zero (pi/128
 ROT_INC = 00000324h ;; Increment for rotation: PI/64
 ACCEL = 00002000h ;; Increment for linear acceleration: one eighth-pixel per frame
 MAX_RVELOCITY = 0000d000h ;; Maximum rotational velocity (be nice to the player and limit it to make control easier)
+MIN_PAUSE = 5 ;; Minimum number of frames we can be paused for
 
 ;; Library Functions
 BlackStarField	PROTO
