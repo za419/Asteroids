@@ -507,20 +507,7 @@ K2: ;; TODO: This should accelerate the player
     ;; Since neither left or right is being pressed, clear the RCS bitmap
     mov (GameObject PTR [edi]).sprite, 0
     cmp KeyPress, VK_UP
-    jne K3
-    jmp M1
-
-K3:
-    cmp KeyPress, VK_P
-    jne M1
-    mov paused, 1
-
-M1: ;; TODO: This should accelerate the asteroid
-    mov edi, OFFSET MouseStatus
-    mov ecx, (MouseInfo PTR [edi]).buttons
-    and ecx, MK_LBUTTON
-    cmp ecx, 0
-    je NOPRESS
+    jne NOPRESS
 
     ;; Set engines-on fighter sprite
     ;; Choice of sprite varies per-frame, starting on fighter_002
@@ -542,10 +529,17 @@ ACCELERATE: ;; Accelerate fighter
     neg eax
     INVOKE FixedAdd, eax, (GameObject PTR [esi]).yvelocity
     mov (GameObject PTR [esi]).yvelocity, eax
-    jmp EXIT
+    jmp M1
 
 NOPRESS: ;; Set normal fighter sprite
     mov (GameObject PTR [esi]).sprite, OFFSET fighter_000
+
+K3:
+    cmp KeyPress, VK_P
+    jne M1
+    mov paused, 1
+
+M1: ;; TODO: This should accelerate the asteroid
     ;; Fallthrough
 EXIT:
     ret
