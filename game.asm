@@ -460,6 +460,9 @@ ENABLE:
     mov esi, OFFSET endgame
     cmp (GameObject PTR [esi]).sprite, 0
     jne EXIT
+    
+    ;; Increment time since last fire (cooldown)
+    inc SinceFire
 
     ;; Initializer
     mov esi, OFFSET GameObjects
@@ -547,12 +550,17 @@ K3:
     jne M1
     mov paused, 1
 
-M1: ;; TODO: This should accelerate the asteroid
+M1:
     mov edi, OFFSET MouseStatus
     mov ecx, (MouseInfo PTR [edi]).buttons
     and ecx, MK_LBUTTON
     cmp ecx, 0
     je EXIT
+    
+    ;; Do not fire if the blaster is cooling down
+    cmp SinceFire, BLAST_COOLDOWN
+    jl EXIT
+    mov SinceFire, 0 ;; Place the blaster on cooldown
 
     cmp SpawnedObjects, OBJECTS_SIZE ;; Make sure we don't overflow the array
     jl SPAWN
@@ -574,7 +582,7 @@ SPAWN:
     mov eax, (GameObject PTR [esi]).sprite
     INVOKE ToFixedPoint, (EECS205BITMAP PTR [eax]).dwHeight
     INVOKE FixedMultiply, eax, HALF
-    INVOKE FixedAdd, eax, 10*ONE
+    INVOKE FixedAdd, eax, 15*ONE
     mov ecx, eax ;; ecx contains the goal offset
 
     INVOKE FixedSin, (GameObject PTR [esi]).rotation
@@ -617,6 +625,7 @@ GamePlay ENDP
 .DATA
 
 paused BYTE 0
+SinceFire DWORD 0 ;; In frames
 
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0>
 

@@ -35,6 +35,7 @@ ACCEL = 00002000h ;; Increment for linear acceleration: one eighth-pixel per fra
 MAX_RVELOCITY = 0000d000h ;; Maximum rotational velocity (be nice to the player and limit it to make control easier)
 MIN_PAUSE = 5 ;; Minimum number of frames we can be paused for
 BLAST_VELOCITY = 00100000h ;; Velocity a shot is fired at
+BLAST_COOLDOWN = 30
 
 ;; Library Functions
 BlackStarField	PROTO
