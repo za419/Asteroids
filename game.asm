@@ -446,7 +446,7 @@ UPDATE:
     cmp paused, 0
     je ENABLE
     inc paused
-    
+
 ENABLE:
     ;; Stop performing updates if the game is over
     mov esi, OFFSET endgame
@@ -2428,6 +2428,29 @@ gameover EECS205BITMAP <378, 79, 255,, offset gameover + sizeof gameover>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 	BYTE 000h,000h,000h,000h,000h,000h
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+blast EECS205BITMAP <6, 6, 255,, offset blast + sizeof blast>
+	BYTE 0ffh,0beh,03ch,03ch,0beh,0ffh,0beh,01ch,01ch,01ch,01ch,0beh,03ch,01ch,01ch,01ch
+	BYTE 01ch,03ch,03ch,01ch,01ch,01ch,01ch,03ch,0beh,01ch,01ch,01ch,01ch,0beh,0ffh,0beh
+	BYTE 03ch,03ch,0beh,0ffh
 
 
 
