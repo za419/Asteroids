@@ -24,6 +24,8 @@ OBJECTS_SIZE = 100 ;; Constant of max game objects
 .DATA?
 
     GameObjects GameObject OBJECTS_SIZE DUP(<?>)
+    SpawnedObjects DWORD ?
+    STATIC_OBJECTS DWORD ?
 
 .CODE
 
@@ -167,6 +169,10 @@ GameInit PROC USES eax edi
 
     ;; Asteroid doesn't get any flags set
     mov (GameObject PTR [edi]).flags, 0
+
+    ;; Set spawnedobjects to 3
+    mov SpawnedObjects, 3
+    mov STATIC_OBJECTS, 3
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 
@@ -416,6 +422,7 @@ COLLISION: ;; ptrObject collided with edi
     cmp eax, 0
     jne SKIP
     mov (GameObject PTR [edi]).sprite, 0
+    dec SpawnedObjects
     ;; Fallthrough
 SKIP:
     mov esi, ptrObject
@@ -423,6 +430,7 @@ SKIP:
     cmp eax, 0
     jne EXIT
     mov (GameObject PTR [esi]).sprite, 0
+    dec SpawnedObjects
     ;; Fallthrough
 EXIT:
     ret
@@ -540,6 +548,59 @@ K3:
     mov paused, 1
 
 M1: ;; TODO: This should accelerate the asteroid
+    mov edi, OFFSET MouseStatus
+    mov ecx, (MouseInfo PTR [edi]).buttons
+    and ecx, MK_LBUTTON
+    cmp ecx, 0
+    je EXIT
+
+    cmp SpawnedObjects, OBJECTS_SIZE ;; Make sure we don't overflow the array
+    jl SPAWN
+    mov ecx, STATIC_OBJECTS ;; Start overwriting old objects (non-blast objects must come first in the array)
+    mov SpawnedObjects, ecx
+
+SPAWN:
+    imul ecx, SpawnedObjects, SIZEOF GameObject
+    inc SpawnedObjects
+    mov edi, OFFSET GameObjects
+    add edi, ecx
+
+    mov (GameObject PTR [edi]).sprite, OFFSET blast
+
+    mov ecx, OFFSET blast
+    INVOKE ToFixedPoint, (EECS205BITMAP PTR [ecx]).dwHeight
+    INVOKE FixedMultiply, eax, HALF
+    mov ecx, eax
+    mov eax, (GameObject PTR [esi]).sprite
+    INVOKE ToFixedPoint, (EECS205BITMAP PTR [eax]).dwHeight
+    INVOKE FixedMultiply, eax, HALF
+    INVOKE FixedAdd, eax, 10*ONE
+    mov ecx, eax ;; ecx contains the goal offset
+
+    INVOKE FixedSin, (GameObject PTR [esi]).rotation
+    INVOKE FixedMultiply, eax, ecx
+    INVOKE FixedSubtract, (GameObject PTR [esi]).xcenter, eax
+    mov (GameObject PTR [edi]).xcenter, eax
+
+    INVOKE FixedCos, (GameObject PTR [esi]).rotation
+    INVOKE FixedMultiply, eax, ecx
+    INVOKE FixedSubtract, (GameObject PTR [esi]).ycenter, eax
+    mov (GameObject PTR [edi]).ycenter, eax
+
+    ;; Blast is a uniform sphere, so rotation is irrelevant
+    mov (GameObject PTR [edi]).rotation, ZERO
+    mov (GameObject PTR [edi]).rvelocity, ZERO
+
+    INVOKE FixedSin, (GameObject PTR [esi]).rotation
+    INVOKE FixedMultiply, eax, BLAST_VELOCITY
+    INVOKE FixedSubtract, (GameObject PTR [esi]).xvelocity, eax
+    mov (GameObject PTR [edi]).xvelocity, eax
+
+    INVOKE FixedCos, (GameObject PTR [esi]).rotation
+    INVOKE FixedMultiply, eax, BLAST_VELOCITY
+    INVOKE FixedSubtract, (GameObject PTR [esi]).yvelocity, eax
+    mov (GameObject PTR [edi]).yvelocity, eax
+
     ;; Fallthrough
 EXIT:
     ret
