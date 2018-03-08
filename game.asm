@@ -490,7 +490,13 @@ K2: ;; TODO: This should accelerate the player
     ;; Since neither left or right is being pressed, clear the RCS bitmap
     mov (GameObject PTR [edi]).sprite, 0
     cmp KeyPress, VK_UP
+    jne K3
+    jmp M1
+
+K3: ;; Pause/unpause game
+    cmp KeyPress, VK_ESCAPE
     jne M1
+    xor paused, 1
 
 M1: ;; TODO: This should accelerate the asteroid
     mov edi, OFFSET MouseStatus
@@ -537,6 +543,8 @@ GamePlay ENDP
 
 ;; Sprite bitmaps
 .DATA
+
+paused BYTE 0
 
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0>
 
