@@ -171,12 +171,22 @@ GameInit PROC USES eax edi
 GameInit ENDP
 
 ;; Draws a game object using RotateBlit, checking for null-ness
-DrawGameObject PROC USES eax ebx esi ptrObject:PTR GameObject
+DrawGameObject PROC USES eax ebx esi edi ptrObject:PTR GameObject
 
     mov esi, ptrObject
     cmp (GameObject PTR [esi]).sprite, 0 ;; Null check
     je SKIP
 
+    ;; Do not draw transform-copying objects following a null sprite
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, COPY_TRANSFORMS
+    cmp eax, 0
+    je DRAW
+    ;; Check to see if the object is following a null sprite
+    mov edi, (GameObject PTR [esi]).pExtra
+    cmp (GameObject PTR [edi]).sprite, 0
+    je SKIP
+
+DRAW:
     INVOKE FromFixedPoint, (GameObject PTR [esi]).xcenter
     mov ebx, eax
 
@@ -241,7 +251,7 @@ TRANSFORM:
     mov edi, (GameObject PTR [esi]).sprite
     cmp edi, 0 ;; Null check
     je SKIP
-    
+
     ;; First, update x coordinate
     INVOKE FixedAdd, (GameObject PTR [esi]).xcenter, (GameObject PTR [esi]).xvelocity
     ;; Wraparound: For simplicity (and added game difficulty), wraparound objects when they're entirely offscreen
@@ -335,7 +345,7 @@ SKIP:
 UpdateGameObject ENDP
 
 ;; Invoked on end of game
-GameOver PROC
+GameOver PROC USES esi
 
     ;; Set the special endgame gameobject to show the endgame screen
     mov esi, OFFSET endgame
@@ -443,6 +453,7 @@ TOP: ;; Tick loop
     cmp (GameObject PTR [esi]).sprite, 0
     jne SKIP
     INVOKE GameOver ;; If the player has a null sprite, then the game is over
+    jmp EXIT
 SKIP:
     inc ecx
     add esi, SIZEOF GameObject
@@ -3027,9 +3038,9 @@ asteroid_000 EECS205BITMAP <56, 53, 255,, offset asteroid_000 + sizeof asteroid_
 
 
 
-    
-    
-    
+
+
+
 rcs_cw EECS205BITMAP <44, 37, 0,, offset rcs_cw + sizeof rcs_cw>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,024h,092h,0b6h,0ffh,0ffh,0ffh,0ffh,0b6h
 	BYTE 092h,024h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
@@ -3133,34 +3144,34 @@ rcs_cw EECS205BITMAP <44, 37, 0,, offset rcs_cw + sizeof rcs_cw>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
-  
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 rcs_ccw EECS205BITMAP <44, 37, 0,, offset rcs_ccw + sizeof rcs_ccw>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,024h,092h,0b6h,0ffh,0ffh
