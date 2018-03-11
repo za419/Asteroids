@@ -149,6 +149,11 @@ GameInit PROC USES eax edi
     or (GameObject PTR [edi]).flags, COLLISION_IGNORE
     mov (GameObject PTR [edi]).pExtra, OFFSET GameObjects
 
+    ;; Powerup slot for the player
+    add edi, SIZEOF GameObject
+    ;; No initial sprite, transforms, flag, velocities, or extra
+    ;; This is all handled by the code which attaches it, but this is the reserved space for it
+
     ;; Initialize the first asteroid
     add edi, SIZEOF GameObject
     mov (GameObject PTR [edi]).sprite, OFFSET asteroid_000
@@ -170,9 +175,9 @@ GameInit PROC USES eax edi
     ;; Asteroid doesn't get any flags set
     mov (GameObject PTR [edi]).flags, 0
 
-    ;; Set spawnedobjects to 3
-    mov SpawnedObjects, 3
-    mov STATIC_OBJECTS, 3
+    ;; Set spawnedobjects
+    mov SpawnedObjects, 4
+    mov STATIC_OBJECTS, 4
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 
@@ -460,7 +465,7 @@ ENABLE:
     mov esi, OFFSET endgame
     cmp (GameObject PTR [esi]).sprite, 0
     jne EXIT
-    
+
     ;; Increment time since last fire (cooldown)
     inc SinceFire
 
@@ -556,7 +561,7 @@ M1:
     and ecx, MK_LBUTTON
     cmp ecx, 0
     je EXIT
-    
+
     ;; Do not fire if the blaster is cooling down
     cmp SinceFire, BLAST_COOLDOWN
     jb EXIT

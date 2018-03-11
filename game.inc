@@ -79,6 +79,8 @@ COLLISION_IGNORE = 4 ;; Prevents the object from participating in collisions at 
 COPY_TRANSFORMS = 8 ;; The object shall maintain the same rotation and location as the one pointed to by pExtra.
                     ;; I highly recommend also applying COLLISION_IGNORE, since, well...... Both colliding immediately is bad, unless for some reason you're using this to force a collision?
                     ;; Objects with this set will not have acceleration applied to them whatsoever (so if they precede their target by update order, they will lag it by a frame)
+COLLISION_NONPLAYER = 16 ;; The object will only collide with non-player objects (a good option for transform copies on the player as well)
+COLLISION_COLLECTIBLE = 32 ;; The object will ignore collisions with non-player objects. Collision with the player will invoke Collect, which shall attach the GameObject in pExtra to the player's powerup slot
 
 GravitationalObject STRUCT
     maxrad FXPT 00640000h ;; Optimization: Do not calculate acceleration of objects whose center is this many pixels from our own. Set to 0 to disable
