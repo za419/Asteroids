@@ -154,26 +154,11 @@ GameInit PROC USES eax ecx edi esi
     ;; No initial sprite, transforms, flag, velocities, or extra
     ;; This is all handled by the code which attaches it, but this is the reserved space for it
 
-    ;; Initialize the first asteroid
+    ;; Initialize the first asteroid using movsb
     add edi, SIZEOF GameObject
-    mov (GameObject PTR [edi]).sprite, OFFSET asteroid_000
-
-    INVOKE ToFixedPoint, SCREEN_WIDTH/4
-    mov (GameObject PTR [edi]).xcenter, eax
-
-    INVOKE ToFixedPoint, 3*SCREEN_HEIGHT/4
-    mov (GameObject PTR [edi]).ycenter, eax
-
-    mov (GameObject PTR [edi]).xvelocity, HALF
-    mov (GameObject PTR [edi]).yvelocity, -HALF
-    mov (GameObject PTR [edi]).rotation, ZERO
-
-    ;; Spawn the asteroid with just over one threshold of rotational velocity
-    INVOKE FixedAdd, EPSILON, ROT_INC
-    mov (GameObject PTR [edi]).rvelocity, eax
-
-    ;; Asteroid doesn't get any flags set
-    mov (GameObject PTR [edi]).flags, 0
+    mov esi, OFFSET asteroid_initial
+    mov ecx, SIZEOF GameObject
+    rep movsb
 
     ;; Shield powerup collectible
     ;; Just copy it over from its static location using movsb
@@ -718,6 +703,16 @@ paused BYTE 0
 SinceFire DWORD -1 ;; In frames
 
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0, 0>
+
+;; Template object for initial asteroid
+;; Tags have value equal to about 2 seconds at 3 GHz (2.1 billion clock cycles)
+;; Initial asteroid respawns as asteroid0
+asteroid_initial GameObject <OFFSET asteroid_000, 160, 360, HALF, -HALF, ZERO, ROT_INC, RESPAWNING_OBJECT, 0, 7e11d600h, 0, OFFSET asteroid0>
+
+;; Template object for general asteroid 
+;; Tags have value equal to about 5 seconds at 3 GHz (15 billion clock cycles)
+;; Respawns as itself
+asteroid0 GameObject <OFFSET asteroid_000, 200, 200, ONE+HALF, ONE-HALF, ONE, -ROT_INC, RESPAWNING_OBJECT, 6, 7e11d600h, 0, OFFSET asteroid0>
 
 ;; Flag has value 96, or COLLISION_COLLECTIBLE|RESPAWNING_OBJECT
 ;; Together, the tags have value equal to about 10 seconds at 3GHz (30 billion clock cycles)
