@@ -258,7 +258,7 @@ UpdateGameObject PROC USES eax ebx edx esi edi ptrObject:PTR GameObject
     jl SKIP ;; It is not yet time
 
     ;; It is time to respawn esi
-    mov edi, (GameObject PTR [esi]).pExtra
+    mov edi, (GameObject PTR [esi]).pRespawn
     xchg esi, edi ;; For movsb
     mov ecx, SIZEOF GameObject
     rep movsb
@@ -711,7 +711,17 @@ GamePlay ENDP
 paused BYTE 0
 SinceFire DWORD -1 ;; In frames
 
-endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0>
+endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0, 0>
+
+;; Flag has value 96, or COLLISION_COLLECTIBLE|RESPAWNING_OBJECT
+;; Together, the tags have value equal to about 10 seconds at 3GHz (30 billion clock cycles)
+;; pExtra points to the shield the player will receive
+;; pRespawn points back here, regenerating the pickup about 10 seconds after it's consumed on normal-ish computers
+shield_powerup GameObject <OFFSET shield_pickup, 100, 50, ONE*20, ONE*40, 0, EPSILON, 96, 0000000dh, 7c23ac00h, OFFSET player_shield, OFFSET shield_powerup>
+
+;; Flag has value 24, or COPY_TRANSFORMS|COLLISION_NONPLAYER
+;; pExtra points to the first game object, which is the player
+player_shield GameObject <OFFSET shield_power, 0, 0, 0, 0, 0, 0, 24, 0, 0, OFFSET GameObjects, 0>
 
 gameover EECS205BITMAP <378, 79, 255,, offset gameover + sizeof gameover>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
