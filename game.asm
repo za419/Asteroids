@@ -116,7 +116,7 @@ EXIT:
     ret
 CheckIntersect ENDP
 
-GameInit PROC USES eax edi
+GameInit PROC USES eax edi esi
 
     ;; Initialize the player (who is always the first object in the GameObjects array)
     mov edi, OFFSET GameObjects
@@ -175,9 +175,16 @@ GameInit PROC USES eax edi
     ;; Asteroid doesn't get any flags set
     mov (GameObject PTR [edi]).flags, 0
 
+    ;; Shield powerup collectible
+    ;; Just copy it over from its static location using movsb
+    add edi, SIZEOF GameObject
+    mov esi, OFFSET shield_powerup
+    mov ecx, SIZEOF GameObject
+    rep movsb
+
     ;; Set spawnedobjects
-    mov SpawnedObjects, 4
-    mov STATIC_OBJECTS, 4
+    mov SpawnedObjects, 5
+    mov STATIC_OBJECTS, 5
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 
@@ -257,6 +264,7 @@ UpdateGameObject PROC USES eax ebx edx esi edi ptrObject:PTR GameObject
     cmp eax, (GameObject PTR [esi]).tag1 ;; Check if the lower dword of the timer is past the lower tag
     jl SKIP ;; It is not yet time
 
+RESPAWN:
     ;; It is time to respawn esi
     mov edi, (GameObject PTR [esi]).pRespawn
     xchg esi, edi ;; For movsb
@@ -391,7 +399,7 @@ GameOver PROC USES esi
 GameOver ENDP
 
 ;; Attaches the collectible object in ptrObject to the player
-Collect PROC USES esi edi ptrObject:PTR GameObject
+Collect PROC USES ecx esi edi ptrObject:PTR GameObject
 
     mov esi, ptrObject
     mov edi, OFFSET GameObjects+2*SIZEOF GameObject
@@ -443,7 +451,7 @@ TOP: ;; Collision loop
     cmp eax, 0
     je NORMAL
     cmp index, 0 ;; Check for if esi is the player
-    je TOP ;; Continue checking if the flag is set and the collision is being checked against the player
+    je COND ;; Continue checking if the flag is set and the collision is being checked against the player
 
 NORMAL:
     INVOKE FromFixedPoint, (GameObject PTR [edi]).xcenter
@@ -717,7 +725,7 @@ endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0
 ;; Together, the tags have value equal to about 10 seconds at 3GHz (30 billion clock cycles)
 ;; pExtra points to the shield the player will receive
 ;; pRespawn points back here, regenerating the pickup about 10 seconds after it's consumed on normal-ish computers
-shield_powerup GameObject <OFFSET shield_pickup, 100, 50, ONE*20, ONE*40, 0, EPSILON, 96, 0000000dh, 7c23ac00h, OFFSET player_shield, OFFSET shield_powerup>
+shield_powerup GameObject <OFFSET shield_pickup, 100, 50, ONE*2, ONE*4, 0, EPSILON, 96, 0000000dh, 7c23ac00h, OFFSET player_shield, OFFSET shield_powerup>
 
 ;; Flag has value 24, or COPY_TRANSFORMS|COLLISION_NONPLAYER
 ;; pExtra points to the first game object, which is the player
