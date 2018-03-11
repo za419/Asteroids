@@ -707,7 +707,7 @@ endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0
 ;; Template object for initial asteroid
 ;; Tags have value equal to about 2 seconds at 3 GHz (2.1 billion clock cycles)
 ;; Initial asteroid respawns as asteroid0
-asteroid_initial GameObject <OFFSET asteroid_000, 00a00000h, 01680000h, HALF, -HALF, ZERO, EPSILON+ROT_INC, RESPAWNING_OBJECT, 0, 7e11d600h, 0, OFFSET asteroid0>
+asteroid_initial GameObject <OFFSET asteroid_003, 00a00000h, 01680000h, HALF, -HALF, ZERO, EPSILON+ROT_INC, RESPAWNING_OBJECT, 0, 7e11d600h, 0, OFFSET asteroid0>
 
 ;; Template object for general asteroid
 ;; Tags have value equal to about 5 seconds at 3 GHz (15 billion clock cycles)
