@@ -707,18 +707,18 @@ endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0
 ;; Template object for initial asteroid
 ;; Tags have value equal to about 2 seconds at 3 GHz (2.1 billion clock cycles)
 ;; Initial asteroid respawns as asteroid0
-asteroid_initial GameObject <OFFSET asteroid_000, 160, 360, HALF, -HALF, ZERO, ROT_INC, RESPAWNING_OBJECT, 0, 7e11d600h, 0, OFFSET asteroid0>
+asteroid_initial GameObject <OFFSET asteroid_000, 00a00000h, 01680000h, HALF, -HALF, ZERO, ROT_INC, RESPAWNING_OBJECT, 0, 7e11d600h, 0, OFFSET asteroid0>
 
 ;; Template object for general asteroid 
 ;; Tags have value equal to about 5 seconds at 3 GHz (15 billion clock cycles)
 ;; Respawns as itself
-asteroid0 GameObject <OFFSET asteroid_000, 200, 200, ONE+HALF, ONE-HALF, ONE, -ROT_INC, RESPAWNING_OBJECT, 6, 7e11d600h, 0, OFFSET asteroid0>
+asteroid0 GameObject <OFFSET asteroid_000, 00c80000h, 00c80000h, ONE+HALF, ONE-HALF, ONE, -ROT_INC, RESPAWNING_OBJECT, 6, 7e11d600h, 0, OFFSET asteroid0>
 
 ;; Flag has value 96, or COLLISION_COLLECTIBLE|RESPAWNING_OBJECT
 ;; Together, the tags have value equal to about 10 seconds at 3GHz (30 billion clock cycles)
 ;; pExtra points to the shield the player will receive
 ;; pRespawn points back here, regenerating the pickup about 10 seconds after it's consumed on normal-ish computers
-shield_powerup GameObject <OFFSET shield_pickup, 100, 50, ONE*2, ONE*4, 0, EPSILON, 96, 0000000dh, 7c23ac00h, OFFSET player_shield, OFFSET shield_powerup>
+shield_powerup GameObject <OFFSET shield_pickup, 00640000h, 00320000h, ONE*2, ONE*4, 0, EPSILON, 96, 0000000dh, 7c23ac00h, OFFSET player_shield, OFFSET shield_powerup>
 
 ;; Flag has value 24, or COPY_TRANSFORMS|COLLISION_NONPLAYER
 ;; pExtra points to the first game object, which is the player
