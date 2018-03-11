@@ -64,7 +64,8 @@ GameObject STRUCT
     rvelocity FXPT ?
     ;; Metadata
     flags WORD 0 ;; Checks on various conditions set - 0 is equivalent to "General".
-    tag WORD 0 ;; Extra data which can be used for storage related to this object
+    tag0 DWORD 0 ;; Extra data which can be used for storage related to this object
+    tag1 DWORD 0 ;; More extra data
     pExtra DWORD 0 ;; Pointer to a structure containing even more data this object might need
     ;; Interpretation of the last 48 bits is entirely dependent on the 16 flag bits
     ;; For example, a (theoretical) object could specify that it requires scaling in the flags, store a fixed88 in the tag, and then use the extra pointer for mipmapping or specification of a scaling algorithm
@@ -81,9 +82,10 @@ COPY_TRANSFORMS = 8 ;; The object shall maintain the same rotation and location 
                     ;; Objects with this set will not have acceleration applied to them whatsoever (so if they precede their target by update order, they will lag it by a frame)
 COLLISION_NONPLAYER = 16 ;; The object will only collide with non-player objects (a good option for transform copies on the player as well)
 COLLISION_COLLECTIBLE = 32 ;; The object will ignore collisions with non-player objects. Collision with the player will invoke Collect, which shall attach the GameObject in pExtra to the player's powerup slot
-RESPAWNING_OBJECT = 64 ;; When deleted, the object will have its tag incremented by the cycle count.
+RESPAWNING_OBJECT = 64 ;; When deleted, the object will have its tags incremented by the cycle count.
                        ;; When that cycle count is passed, the object will be "respawned" by copying the GameObject in pExtra into its memory
                        ;; (Note that this means that, for respawning objects, if the object is alive, tag stores the respawn interval, or if it's dead, tag stores the respawn time)
+                       ;; Also note that this means that the object can be respawned as an entirely different one after death (means of progression?)
 
 GravitationalObject STRUCT
     maxrad FXPT 00640000h ;; Optimization: Do not calculate acceleration of objects whose center is this many pixels from our own. Set to 0 to disable

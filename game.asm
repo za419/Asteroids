@@ -241,8 +241,31 @@ SKIP:
 DrawGame ENDP
 
 ;; Ticks a game object
-UpdateGameObject PROC USES eax ebx esi edi ptrObject:PTR GameObject
+UpdateGameObject PROC USES eax ebx edx esi edi ptrObject:PTR GameObject
 
+    mov esi, ptrObject
+
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, RESPAWNING_OBJECT ;; Handle respawning objects
+    cmp eax, 0
+    je COPY
+    cmp (GameObject PTR [esi]).sprite, 0 ;; Check if the object is dead
+    jne COPY
+    rdtsc
+    cmp edx, (GameObject PTR [esi]).tag0 ;; Check if the upper dword of the timer is past the upper tag
+    jl SKIP ;; It is not yet time
+    jg RESPAWN ;; It is definitely time
+    cmp eax, (GameObject PTR [esi]).tag1 ;; Check if the lower dword of the timer is past the lower tag
+    jl SKIP ;; It is not yet time
+
+    ;; It is time to respawn esi
+    mov edi, (GameObject PTR [esi]).pExtra
+    xchg esi, edi ;; For movsb
+    mov ecx, SIZEOF GameObject
+    rep movsb
+
+    mov esi, ptrObject ;; So update can continue
+
+COPY:
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, COPY_TRANSFORMS ;; Handle following objects
     cmp eax, 0
     je TRANSFORM
@@ -258,7 +281,6 @@ UpdateGameObject PROC USES eax ebx esi edi ptrObject:PTR GameObject
     jmp SKIP ;; Do not perform normal update
 
 TRANSFORM:
-    mov esi, ptrObject
     mov edi, (GameObject PTR [esi]).sprite
     cmp edi, 0 ;; Null check
     je SKIP
@@ -376,7 +398,7 @@ Collect PROC USES esi edi ptrObject:PTR GameObject
 
     ;; Use memory copy to fill the powerup slot
     mov ecx, SIZEOF GameObject
-    rep movsd
+    rep movsb
     ret
 Collect ENDP
 
@@ -385,7 +407,7 @@ Collect ENDP
 ;; Index is the index this object appears in in the GameObjects list
 ;; Handles collisions by itself: Does not return a value
 ;; If more than two objects collide simultaneously, only the first two in GameObjects are handled
-CollideGameObject PROC USES esi edi eax ebx ecx ptrObject:PTR GameObject, index:DWORD
+CollideGameObject PROC USES esi edi eax ebx ecx edx ptrObject:PTR GameObject, index:DWORD
     LOCAL oneX:DWORD, oneY:DWORD
 
     ;; Initializer
@@ -450,6 +472,15 @@ COLLISION: ;; ptrObject collided with edi
     INVOKE Collect, (GameObject PTR [edi]).pExtra
     ;; Delete the collected powerup object
     mov (GameObject PTR [edi]).sprite, 0
+
+    ;; Check if the collectible is respawning, and if so, set its tag properly
+    INVOKE CheckFlag, (GameObject PTR [edi]).flags, RESPAWNING_OBJECT
+    cmp eax, 0
+    je L1
+    rdtsc
+    add (GameObject PTR [edi]).tag0, edx
+    add (GameObject PTR [edi]).tag1, eax
+L1: ;; I'm running out of label names
     jmp COND ;; Return to checking more collisions, since this one didn't delete the player
 
 CONT:
@@ -458,6 +489,15 @@ CONT:
     jne SKIP
     mov (GameObject PTR [edi]).sprite, 0
     dec SpawnedObjects
+
+    ;; Check if the object is respawning, and if so, set its tag properly
+    INVOKE CheckFlag, (GameObject PTR [edi]).flags, RESPAWNING_OBJECT
+    cmp eax, 0
+    je SKIP
+    rdtsc
+    add (GameObject PTR [edi]).tag0, edx
+    add (GameObject PTR [edi]).tag1, eax
+
     ;; Fallthrough
 SKIP:
     mov esi, ptrObject
@@ -466,6 +506,15 @@ SKIP:
     jne EXIT
     mov (GameObject PTR [esi]).sprite, 0
     dec SpawnedObjects
+
+    ;; Check if the object is respawning, and if so, set its tag properly
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, RESPAWNING_OBJECT
+    cmp eax, 0
+    je EXIT
+    rdtsc
+    add (GameObject PTR [edi]).tag0, edx
+    add (GameObject PTR [edi]).tag1, eax
+
     ;; Fallthrough
 EXIT:
     ret
@@ -662,7 +711,7 @@ GamePlay ENDP
 paused BYTE 0
 SinceFire DWORD -1 ;; In frames
 
-endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0>
+endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0>
 
 gameover EECS205BITMAP <378, 79, 255,, offset gameover + sizeof gameover>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
