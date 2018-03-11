@@ -496,7 +496,6 @@ CONT:
     cmp eax, 0
     jne SKIP
     mov (GameObject PTR [edi]).sprite, 0
-    dec SpawnedObjects
 
     ;; Check if the object is respawning, and if so, set its tag properly
     INVOKE CheckFlag, (GameObject PTR [edi]).flags, RESPAWNING_OBJECT
@@ -513,7 +512,6 @@ SKIP:
     cmp eax, 0
     jne EXIT
     mov (GameObject PTR [esi]).sprite, 0
-    dec SpawnedObjects
 
     ;; Check if the object is respawning, and if so, set its tag properly
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, RESPAWNING_OBJECT
