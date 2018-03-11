@@ -244,10 +244,10 @@ UpdateGameObject PROC USES eax ebx ecx edx esi edi ptrObject:PTR GameObject
     jne COPY
     rdtsc
     cmp edx, (GameObject PTR [esi]).tag0 ;; Check if the upper dword of the timer is past the upper tag
-    jl SKIP ;; It is not yet time
-    jg RESPAWN ;; It is definitely time
+    jb SKIP ;; It is not yet time
+    ja RESPAWN ;; It is definitely time
     cmp eax, (GameObject PTR [esi]).tag1 ;; Check if the lower dword of the timer is past the lower tag
-    jl SKIP ;; It is not yet time
+    jb SKIP ;; It is not yet time
 
 RESPAWN:
     ;; It is time to respawn esi
