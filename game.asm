@@ -368,6 +368,18 @@ GameOver PROC USES esi
     ret
 GameOver ENDP
 
+;; Attaches the collectible object in ptrObject to the player
+Collect PROC USES esi edi ptrObject:PTR GameObject
+
+    mov esi, ptrObject
+    mov edi, OFFSET GameObjects+2*SIZEOF GameObject
+
+    ;; Use memory copy to fill the powerup slot
+    mov ecx, SIZEOF GameObject
+    rep movsd
+    ret
+Collect ENDP
+
 ;; Checks for collisions with all game objects, in order
 ;; ptrObject is the first object to check collisions for (against all after it)
 ;; Index is the index this object appears in in the GameObjects list
