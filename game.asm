@@ -417,6 +417,13 @@ TOP: ;; Collision loop
     cmp eax, 0
     jne COND
 
+    INVOKE CheckFlag, (GameObject PTR [edi]).flags, COLLISION_NONPLAYER ;; Check for non-player colliding objects
+    cmp eax, 0
+    je NORMAL
+    cmp index, 0 ;; Check for if esi is the player
+    je TOP ;; Continue checking if the flag is set and the collision is being checked against the player
+
+NORMAL:
     INVOKE FromFixedPoint, (GameObject PTR [edi]).xcenter
     mov ebx, eax
     INVOKE FromFixedPoint, (GameObject PTR [edi]).ycenter
