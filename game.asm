@@ -228,7 +228,14 @@ TOP: ;; Drawing loop
     cmp (GameObject PTR [esi]).sprite, 0
     je SKIP
     INVOKE DrawGameObject, esi
+
 SKIP:
+    ;; If the game is paused, draw the paused message at the center of the screen
+    cmp paused, 0
+    jle EXIT
+    mov esi, OFFSET paused_sprite
+    INVOKE BasicBlit, esi, SCREEN_WIDTH/2, SCREEN_HEIGHT/2
+EXIT:
     ret
 DrawGame ENDP
 
@@ -2634,7 +2641,7 @@ gameover EECS205BITMAP <378, 79, 255,, offset gameover + sizeof gameover>
 
 
 
-paused EECS205BITMAP <237, 37, 255,, offset paused + sizeof paused>
+paused_sprite EECS205BITMAP <237, 37, 255,, offset paused_sprite + sizeof paused_sprite>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,0ffh,0ffh,0ffh,0ffh,0ffh
 	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
