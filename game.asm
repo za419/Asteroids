@@ -116,7 +116,7 @@ EXIT:
     ret
 CheckIntersect ENDP
 
-GameInit PROC USES eax edi esi
+GameInit PROC USES eax ecx edi esi
 
     ;; Initialize the player (who is always the first object in the GameObjects array)
     mov edi, OFFSET GameObjects
@@ -248,7 +248,7 @@ SKIP:
 DrawGame ENDP
 
 ;; Ticks a game object
-UpdateGameObject PROC USES eax ebx edx esi edi ptrObject:PTR GameObject
+UpdateGameObject PROC USES eax ebx ecx edx esi edi ptrObject:PTR GameObject
 
     mov esi, ptrObject
 
@@ -529,7 +529,7 @@ EXIT:
 CollideGameObject ENDP
 
 ;; Updates all game objects, in order
-UpdateGame PROC USES ecx esi edi
+UpdateGame PROC USES eax ecx esi edi
 
 CHECK:    ;; Don't update when the game is paused
     cmp paused, 0
