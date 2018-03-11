@@ -442,6 +442,17 @@ COND:
 
 COLLISION: ;; ptrObject collided with edi
     ;; For the time being, just 'delete' both objects
+    INVOKE CheckFlag, (GameObject PTR [edi]).flags, COLLISION_COLLECTIBLE ;; Check for collectible object
+    cmp eax, 0
+    je CONT
+    cmp index, 0 ;; Check if we're checking against the player
+    jne COND ;; If not, go back and check against
+    INVOKE Collect, (GameObject PTR [edi]).pExtra
+    ;; Delete the collected powerup object
+    mov (GameObject PTR [edi]).sprite, 0
+    jmp COND ;; Return to checking more collisions, since this one didn't delete the player
+
+CONT:
     INVOKE CheckFlag, (GameObject PTR [edi]).flags, COLLISION_NODELETE ;; Check for non-deleting object
     cmp eax, 0
     jne SKIP
