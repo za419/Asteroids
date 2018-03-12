@@ -530,8 +530,8 @@ SKIP:
     cmp eax, 0
     je BOUNTY2
     rdtsc
-    add (GameObject PTR [edi]).tag0, edx
-    add (GameObject PTR [edi]).tag1, eax
+    add (GameObject PTR [esi]).tag0, edx
+    add (GameObject PTR [esi]).tag1, eax
 
 BOUNTY2:
     ;; Check if the object grants a bounty, and if so, grant the appropriate number of points
