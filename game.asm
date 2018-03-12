@@ -234,12 +234,12 @@ TOP: ;; Drawing loop
 
 SKIP:
     ;; Display score (for now, mocked)
-    push 5482
-    push offset fmtStr
-    push offset outStr
+    push gamescore
+    push offset scoreFmtStr
+    push offset scoreStr
     call wsprintf
     add esp, 12
-    mov esi, OFFSET outStr
+    mov esi, OFFSET scoreStr
     INVOKE DrawStr, esi, 0, 440, 255
 
     ;; If the game is paused, draw the paused message at the center of the screen
@@ -721,8 +721,9 @@ GamePlay ENDP
 paused BYTE 0
 SinceFire DWORD -1 ;; In frames
 
-fmtStr BYTE "Score: %d",0
-outStr BYTE 256 DUP(0)
+gamescore DWORD 0
+scoreFmtStr BYTE "Score: %d",0
+scoreStr BYTE 256 DUP(0)
 
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0, 0>
 
