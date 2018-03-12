@@ -240,8 +240,7 @@ SKIP:
     call wsprintf
     add esp, 12
     mov esi, OFFSET outStr
-    INVOKE DrawStr, esi, 300, 300, 255
-
+    INVOKE DrawStr, esi, 0, 440, 255
 
     ;; If the game is paused, draw the paused message at the center of the screen
     cmp paused, 0
