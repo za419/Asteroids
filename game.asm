@@ -16,6 +16,9 @@ include trig.inc
 include blit.inc
 include game.inc
 
+include \masm32\include\user32.inc
+includelib \masm32\lib\user32.lib
+
 ;; Has keycodes
 include keys.inc
 
@@ -230,6 +233,16 @@ TOP: ;; Drawing loop
     INVOKE DrawGameObject, esi
 
 SKIP:
+    ;; Display score (for now, mocked)
+    push 5482
+    push offset fmtStr
+    push offset outStr
+    call wsprintf
+    add esp, 12
+    mov esi, OFFSET outStr
+    INVOKE DrawStr, esi, 300, 300, 255
+
+
     ;; If the game is paused, draw the paused message at the center of the screen
     cmp paused, 0
     jle EXIT
@@ -708,6 +721,9 @@ GamePlay ENDP
 
 paused BYTE 0
 SinceFire DWORD -1 ;; In frames
+
+fmtStr BYTE "Score: %d",0
+outStr BYTE 256 DUP(0)
 
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0, 0>
 
