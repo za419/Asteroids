@@ -16,8 +16,20 @@ include trig.inc
 include blit.inc
 include game.inc
 
+;; Windows includes
+include \masm32\include\winmm.inc
+includelib \masm32\lib\winmm.lib
 include \masm32\include\user32.inc
 includelib \masm32\lib\user32.lib
+
+;; I get an internal assembler error (A1016) if windows.inc is included
+;; include \masm32\include\windows.inc
+
+;; These lines are copied definitions from windows.inc
+SND_FILENAME = 20000h
+SND_LOOP = 8h
+SND_ASYNC = 1h
+SND_NODEFAULT = 2h
 
 ;; Has keycodes
 include keys.inc
@@ -399,6 +411,10 @@ GameOver PROC USES esi
     ;; Properly center object
     INVOKE FixedMultiply, SCREEN_WIDTH_FXPT, HALF
     mov (GameObject PTR [esi]).xcenter, eax
+
+    ;; Play game over track
+    mov esi, OFFSET endGameSound
+    INVOKE PlaySound, esi, 0, SND_FILENAME OR SND_ASYNC OR SND_NODEFAULT
     ret
 GameOver ENDP
 
@@ -739,10 +755,15 @@ GamePlay ENDP
 paused BYTE 0
 SinceFire DWORD -1 ;; In frames
 
+;; Game scoring
 gamescore DWORD 0
 scoreFmtStr BYTE "Score: %d",0
 scoreStr BYTE 256 DUP(0)
 
+;; Game music
+endGameSound BYTE "sound\Blonde Redhead - For the Damaged Coda.wav",0
+
+;; Game objects
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0, 0>
 
 ;; Template object for initial asteroid
