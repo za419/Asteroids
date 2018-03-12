@@ -87,6 +87,7 @@ RESPAWNING_OBJECT = 64 ;; When deleted, the object will have its tags incremente
                        ;; When that cycle count is passed, the object will be "respawned" by copying the GameObject in pRespawn into its memory
                        ;; (Note that this means that, for respawning objects, if the object is alive, tag stores the respawn interval, or if it's dead, tag stores the respawn time)
                        ;; Also note that this means that the object can be respawned as an entirely different one after death (means of progression?)
+KILL_SCORE = 128 ;; If set, will grant points equal to pExtra when killed
 
 GravitationalObject STRUCT
     maxrad FXPT 00640000h ;; Optimization: Do not calculate acceleration of objects whose center is this many pixels from our own. Set to 0 to disable
