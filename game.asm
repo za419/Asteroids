@@ -504,10 +504,18 @@ CONT:
     ;; Check if the object is respawning, and if so, set its tag properly
     INVOKE CheckFlag, (GameObject PTR [edi]).flags, RESPAWNING_OBJECT
     cmp eax, 0
-    je SKIP
+    je BOUNTY
     rdtsc
     add (GameObject PTR [edi]).tag0, edx
     add (GameObject PTR [edi]).tag1, eax
+
+BOUNTY:
+    ;; Check if the object grants a bounty, and if so, grant the appropriate number of points
+    INVOKE CheckFlag, (GameObject PTR [edi]).flags, KILL_SCORE
+    cmp eax, 0
+    je SKIP
+    mov edi, (GameObject PTR [edi]).pExtra
+    add gamescore, edi
 
     ;; Fallthrough
 SKIP:
@@ -520,11 +528,18 @@ SKIP:
     ;; Check if the object is respawning, and if so, set its tag properly
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, RESPAWNING_OBJECT
     cmp eax, 0
-    je EXIT
+    je BOUNTY2
     rdtsc
     add (GameObject PTR [edi]).tag0, edx
     add (GameObject PTR [edi]).tag1, eax
 
+BOUNTY2:
+    ;; Check if the object grants a bounty, and if so, grant the appropriate number of points
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, KILL_SCORE
+    cmp eax, 0
+    je EXIT
+    mov esi, (GameObject PTR [esi]).pExtra
+    add gamescore, esi
     ;; Fallthrough
 EXIT:
     ret
