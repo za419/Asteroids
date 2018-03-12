@@ -558,6 +558,9 @@ ENABLE:
     ;; Increment time since last fire (cooldown)
     inc SinceFire
 
+    ;; Increment game score
+    inc gamescore
+
     ;; Initializer
     mov esi, OFFSET GameObjects
     mov ecx, 0
