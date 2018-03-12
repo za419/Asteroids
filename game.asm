@@ -171,8 +171,8 @@ GameInit PROC USES eax ecx edi esi
     rep movsb
 
     ;; Set spawnedobjects
-    mov SpawnedObjects, 5
-    mov STATIC_OBJECTS, 5
+    mov SpawnedObjects, 6
+    mov STATIC_OBJECTS, 6
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 
