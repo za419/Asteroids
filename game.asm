@@ -42,6 +42,8 @@ OBJECTS_SIZE = 100 ;; Constant of max game objects
     SpawnedObjects DWORD ?
     STATIC_OBJECTS DWORD ?
 
+    ;; Data flags
+    hasSpawned WORD ? ;; Set bits to track which objects have already been spawned (see game.inc for values)
 .CODE
 
 ;; Returns the absolute value of a
@@ -133,6 +135,9 @@ CheckIntersect ENDP
 
 GameInit PROC USES eax ecx edi esi
 
+    ;; No objects have spawned at the beginning of the game
+    mov hasSpawned, 0
+
     ;; Initialize the player (who is always the first object in the GameObjects array)
     mov edi, OFFSET GameObjects
     mov (GameObject PTR [edi]).sprite, OFFSET fighter_000
@@ -175,6 +180,10 @@ GameInit PROC USES eax ecx edi esi
     mov ecx, SIZEOF GameObject
     rep movsb
 
+    ;; Second asteroid
+    add edi, SIZEOF GameObject
+    ;; No data, will be copied in later
+
     ;; Shield powerup collectible
     ;; Just copy it over from its static location using movsb
     add edi, SIZEOF GameObject
@@ -183,8 +192,8 @@ GameInit PROC USES eax ecx edi esi
     rep movsb
 
     ;; Set spawnedobjects
-    mov SpawnedObjects, 6
-    mov STATIC_OBJECTS, 6
+    mov SpawnedObjects, 7
+    mov STATIC_OBJECTS, 7
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 
@@ -591,6 +600,27 @@ EXIT:
     ret
 CollideGameObject ENDP
 
+;; Spawns any objects that are due to spawn on this frame
+SpawnObjects PROC USES  ecx esi edi
+
+    cmp gamescore, SPAWNTIME_ASTEROID1
+    jl EXIT
+    INVOKE CheckFlag, hasSpawned, SPAWNED_ASTEROID1
+    cmp eax, 0
+    jne EXIT
+
+    ;; Spawn asteroid1 initial using movsb
+    mov edi, OFFSET GameObjects+4*SIZEOF GameObject
+    mov esi, OFFSET asteroid1_initial
+    mov ecx, SIZEOF GameObject
+    rep movsb
+    ;; Set flag for having spawned asteroid1
+    or hasSpawned, SPAWNED_ASTEROID1
+    jmp EXIT
+EXIT:
+    ret
+SpawnObjects ENDP
+
 ;; Updates all game objects, in order
 UpdateGame PROC USES eax ecx esi edi
 
@@ -621,6 +651,9 @@ ENABLE:
 
     ;; Increment game score
     inc gamescore
+
+    ;; Spawn any needed objects
+    INVOKE SpawnObjects
 
     ;; Initializer
     mov esi, OFFSET GameObjects
@@ -779,7 +812,6 @@ GamePlay PROC
 	ret         ;; Do not delete this line!!!
 GamePlay ENDP
 
-;; Sprite bitmaps
 .DATA
 
 ;; Counters

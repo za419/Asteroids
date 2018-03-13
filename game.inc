@@ -99,3 +99,10 @@ GravitationalObject STRUCT
     adjustment FXPT ZERO ;; Added to acceleration after scaling. Can effect objects outside maxrad
     ;; These last two allow unphysical objects, which can have some interesting effects - For example, an object which pulls everything on screen towards it equally, or a forcefield which repels objects
 GravitationalObject ENDS
+
+
+;; Spawned identifiers
+SPAWNED_ASTEROID1 = 1 ;; Second asteroid pair (first is spawned onload)
+
+;; Spawn timers
+SPAWNTIME_ASTEROID1 = 200 ;; In game score
