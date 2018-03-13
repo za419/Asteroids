@@ -171,7 +171,7 @@ GameInit PROC USES eax ecx edi esi
 
     ;; Initialize the first asteroid using movsb
     add edi, SIZEOF GameObject
-    mov esi, OFFSET asteroid_initial
+    mov esi, OFFSET asteroid0_initial
     mov ecx, SIZEOF GameObject
     rep movsb
 
@@ -782,6 +782,7 @@ GamePlay ENDP
 ;; Sprite bitmaps
 .DATA
 
+;; Counters
 paused BYTE 0
 SinceFire DWORD -1 ;; In frames
 
@@ -796,15 +797,32 @@ endGameSound BYTE "sound\Blonde Redhead - For the Damaged Coda.wav",0
 ;; Game objects
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0, 0>
 
+;; First asteroid pair
+
 ;; Template object for initial asteroid
 ;; Tags have value equal to about 2 seconds at 3 GHz (2.1 billion clock cycles)
 ;; Initial asteroid respawns as asteroid0
-asteroid_initial GameObject <OFFSET asteroid_003, 00a00000h, 01680000h, HALF, -HALF, ZERO, EPSILON+ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 1, 7e11d600h, 5, OFFSET asteroid0>
+asteroid0_initial GameObject <OFFSET asteroid_003, 00a00000h, 01680000h, HALF, -HALF, ZERO, EPSILON+ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 1, 7e11d600h, 5, OFFSET asteroid0>
 
 ;; Template object for general asteroid
 ;; Tags have value equal to about 5 seconds at 3 GHz (15 billion clock cycles)
 ;; Respawns as itself
 asteroid0 GameObject <OFFSET asteroid_000, 00c80000h, 00c80000h, ONE+HALF, ONE-HALF, ONE, -(EPSILON+ROT_INC), RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 6, 7e11d600h, 10, OFFSET asteroid0>
+
+
+;; Second asteroid pair
+
+;; Template object for initial asteroid
+;; Respawns somewhat fasster than asteroid 0 initial
+;; Respawns as asteroid1
+asteroid1_initial GameObject <OFFSET asteroid_005, SCREEN_WIDTH_FXPT+10*ONE, 01680000h, -ONE, -HALF, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 1, 3e11d600h, 7, OFFSET asteroid1>
+
+;; Template object for general asteroid
+;; Respawns somewhat faster than asteroid 0 general
+;; Respawns as itself
+asteroid1 GameObject <OFFSET asteroid_001, -10*ONE, 00680000h, -2*ONE, ONE, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 6, 3e11d600h, 7, OFFSET asteroid1>
+
+;; Shields
 
 ;; Together, the tags have value equal to about 10 seconds at 3GHz (30 billion clock cycles)
 ;; pExtra points to the shield the player will receive
@@ -813,6 +831,9 @@ shield_powerup GameObject <OFFSET shield_pickup, 00640000h, 00320000h, ONE*2, ON
 
 ;; pExtra points to the first game object, which is the player
 player_shield GameObject <OFFSET shield_power, 0, 0, 0, 0, 0, 0, COPY_TRANSFORMS OR COLLISION_NONPLAYER, 0, 0, OFFSET GameObjects, 0>
+
+
+;; Bitmaps
 
 gameover EECS205BITMAP <378, 79, 255,, offset gameover + sizeof gameover>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
@@ -4343,6 +4364,94 @@ asteroid_000 EECS205BITMAP <56, 53, 255,, offset asteroid_000 + sizeof asteroid_
 
 
 
+asteroid_001 EECS205BITMAP <32, 32, 255,, offset asteroid_001 + sizeof asteroid_001>
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,049h,024h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,091h,049h,091h,049h,024h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,091h,0b6h,091h,049h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 091h,0b6h,091h,049h,049h,024h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h
+	BYTE 0b6h,091h,091h,091h,049h,049h,024h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h
+	BYTE 0b6h,091h,091h,091h,049h,091h,049h,024h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h
+	BYTE 0b6h,091h,091h,091h,091h,049h,091h,049h,024h,049h,049h,024h,024h,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h
+	BYTE 0b6h,091h,091h,091h,049h,024h,049h,091h,024h,024h,049h,049h,024h,024h,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h
+	BYTE 0b6h,091h,091h,091h,049h,024h,049h,091h,049h,024h,049h,049h,024h,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h
+	BYTE 091h,0b6h,0b6h,091h,049h,049h,024h,049h,024h,024h,049h,024h,024h,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h,0b6h
+	BYTE 049h,091h,0b6h,091h,091h,049h,049h,049h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h,0b6h,091h
+	BYTE 091h,049h,091h,091h,049h,049h,049h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h,0b6h,091h,091h
+	BYTE 091h,091h,091h,091h,049h,049h,024h,024h,049h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h,0b6h,0b6h,091h,0b6h
+	BYTE 0b6h,091h,091h,049h,049h,024h,024h,049h,049h,024h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h,0b6h,0b6h,091h,0b6h,0b6h
+	BYTE 091h,091h,049h,049h,049h,024h,024h,049h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,091h,091h,091h,091h,0b6h,0b6h,0b6h,091h,091h,0b6h,091h
+	BYTE 091h,091h,049h,049h,024h,024h,024h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,091h,091h,091h,091h,0b6h,0b6h,0b6h,0b6h,0b6h,0b6h,091h,091h,091h,091h
+	BYTE 091h,049h,049h,049h,049h,024h,024h,049h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,091h,0b6h,0b6h,091h,091h,091h,0b6h,0b6h,0b6h,0b6h,091h,091h,091h,091h,091h
+	BYTE 091h,049h,049h,049h,049h,024h,024h,091h,049h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,091h,0b6h,091h,0b6h,0b6h,0b6h,0b6h,0b6h,091h,091h,091h,091h,091h,091h,049h
+	BYTE 091h,049h,049h,049h,049h,024h,049h,091h,091h,049h,024h,024h,024h,0ffh,0ffh,0ffh
+	BYTE 091h,0b6h,0b6h,0b6h,0b6h,091h,091h,091h,0b6h,0b6h,091h,091h,091h,091h,049h,049h
+	BYTE 049h,091h,049h,049h,024h,024h,049h,049h,091h,091h,049h,024h,024h,0ffh,0ffh,0ffh
+	BYTE 091h,0b6h,0b6h,0b6h,091h,091h,049h,091h,091h,0b6h,091h,091h,0b6h,091h,049h,049h
+	BYTE 049h,049h,049h,024h,024h,049h,049h,049h,091h,091h,049h,024h,024h,024h,0ffh,0ffh
+	BYTE 0ffh,091h,0b6h,0b6h,091h,091h,049h,049h,091h,0b6h,091h,091h,091h,091h,091h,049h
+	BYTE 049h,049h,049h,024h,024h,049h,049h,049h,091h,091h,049h,024h,049h,024h,0ffh,0ffh
+	BYTE 0ffh,0ffh,091h,0b6h,0b6h,091h,091h,049h,049h,091h,091h,0b6h,091h,091h,091h,049h
+	BYTE 049h,049h,049h,024h,024h,049h,049h,049h,091h,049h,049h,049h,024h,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,091h,0b6h,0b6h,091h,091h,091h,091h,0b6h,091h,091h,091h,091h,091h
+	BYTE 049h,049h,049h,049h,024h,024h,049h,091h,049h,049h,049h,091h,049h,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,091h,0b6h,0b6h,091h,091h,0b6h,091h,0b6h,0b6h,091h,091h,091h,091h
+	BYTE 049h,049h,049h,049h,024h,024h,024h,049h,049h,049h,091h,049h,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,091h,0b6h,0b6h,0b6h,091h,091h,091h,0b6h,0b6h,091h,091h,049h
+	BYTE 049h,049h,091h,049h,049h,049h,049h,049h,049h,091h,091h,049h,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h,0b6h,0b6h,091h,091h,091h,091h,091h,049h,049h
+	BYTE 049h,024h,049h,091h,049h,049h,049h,049h,091h,091h,049h,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,091h,0b6h,0b6h,0b6h,091h,091h,091h,091h,049h
+	BYTE 049h,049h,024h,049h,091h,091h,091h,091h,091h,049h,049h,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,091h,091h,0b6h,0b6h,091h,091h,091h
+	BYTE 091h,091h,091h,091h,091h,049h,049h,049h,049h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,091h,0b6h,0b6h,091h
+	BYTE 091h,049h,049h,049h,049h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,091h,049h
+	BYTE 049h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -4495,6 +4604,76 @@ asteroid_003 EECS205BITMAP <48, 42, 255,, offset asteroid_003 + sizeof asteroid_
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+asteroid_005 EECS205BITMAP <21, 23, 255,, offset asteroid_005 + sizeof asteroid_005>
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,024h
+	BYTE 024h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,049h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,049h,091h,049h,024h,024h,024h,024h,024h,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h,091h,049h
+	BYTE 049h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,091h,0b6h,091h,049h,049h,049h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h,091h,091h,091h,049h,049h,024h,049h,024h
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h,0b6h,0b6h,091h,0b6h,0b6h
+	BYTE 091h,049h,024h,024h,024h,024h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,091h
+	BYTE 0b6h,091h,049h,091h,0b6h,0b6h,091h,049h,024h,049h,024h,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,091h,091h,0b6h,0b6h,091h,049h,091h,091h,0b6h,091h,049h,024h,049h,049h
+	BYTE 024h,0ffh,0ffh,0ffh,0ffh,091h,091h,0b6h,0b6h,0b6h,091h,091h,049h,049h,091h,0b6h
+	BYTE 091h,049h,024h,049h,049h,024h,0ffh,0ffh,091h,091h,0b6h,0b6h,0b6h,0b6h,0b6h,091h
+	BYTE 091h,091h,049h,049h,091h,049h,049h,024h,024h,049h,024h,024h,091h,0b6h,0b6h,0b6h
+	BYTE 0b6h,0b6h,091h,091h,0b6h,091h,091h,091h,049h,049h,024h,049h,049h,024h,024h,024h
+	BYTE 024h,091h,0b6h,0b6h,091h,091h,0b6h,091h,049h,091h,0b6h,091h,049h,049h,024h,024h
+	BYTE 024h,024h,049h,024h,024h,024h,091h,0b6h,091h,091h,0b6h,0b6h,091h,049h,049h,091h
+	BYTE 091h,091h,049h,049h,049h,024h,024h,024h,024h,049h,024h,091h,0b6h,091h,091h,0b6h
+	BYTE 091h,091h,091h,091h,091h,049h,049h,091h,091h,049h,049h,024h,024h,024h,024h,024h
+	BYTE 091h,0b6h,091h,091h,091h,091h,049h,091h,091h,049h,049h,091h,049h,049h,091h,049h
+	BYTE 024h,024h,024h,024h,0ffh,091h,0b6h,0b6h,091h,091h,0b6h,091h,091h,091h,091h,091h
+	BYTE 0b6h,091h,091h,049h,024h,024h,024h,049h,024h,0ffh,0ffh,091h,0b6h,0b6h,091h,091h
+	BYTE 091h,0b6h,0b6h,0b6h,0b6h,091h,091h,0b6h,091h,049h,024h,049h,091h,049h,0ffh,0ffh
+	BYTE 0ffh,091h,0b6h,0b6h,0b6h,0b6h,0b6h,091h,091h,091h,0ffh,0ffh,091h,091h,049h,049h
+	BYTE 091h,091h,049h,0ffh,0ffh,0ffh,0ffh,091h,091h,091h,091h,091h,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,049h,091h,091h,049h,049h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,049h,049h,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh,0ffh
+	BYTE 0ffh,0ffh,0ffh
 
 
 
