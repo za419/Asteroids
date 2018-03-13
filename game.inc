@@ -106,4 +106,4 @@ GravitationalObject ENDS
 SPAWNED_ASTEROID1 = 1 ;; Second asteroid pair (first is spawned onload)
 
 ;; Spawn timers
-SPAWNTIME_ASTEROID1 = 200 ;; In game score
+SPAWNTIME_ASTEROID1 = 12*RESPAWN_SCALE
