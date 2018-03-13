@@ -823,7 +823,7 @@ GamePlay ENDP
 .DATA
 
 ;; Counters
-paused DWORD 0
+paused SDWORD 0
 SinceFire DWORD -1 ;; In frames
 
 ;; Game scoring
