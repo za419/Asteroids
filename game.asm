@@ -551,7 +551,15 @@ NODEFLECT:
 L1: ;; I'm running out of label names
     jmp COND ;; Return to checking more collisions, since this one didn't delete the player
 
-CONT:
+CONT: ;; Check to see if esi is collectible (we should also ignore that collision)
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, COLLISION_COLLECTIBLE
+    cmp eax, 0
+    je NOCOLLECT
+    ;; We know that we're not checking against the player (esi will always be the player when the player is involved in a collision)
+    ;; So just unconditionally skip this collision
+    jmp COND
+
+NOCOLLECT:
     INVOKE CheckFlag, (GameObject PTR [edi]).flags, COLLISION_NODELETE ;; Check for non-deleting object
     cmp eax, 0
     jne SKIP
