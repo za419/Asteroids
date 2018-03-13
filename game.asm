@@ -261,7 +261,7 @@ TOP: ;; Drawing loop
     INVOKE DrawGameObject, esi
 
 SKIP:
-    ;; Display score (for now, mocked)
+    ;; Display score
     push gamescore
     push offset scoreFmtStr
     push offset scoreStr
@@ -289,8 +289,8 @@ UpdateGameObject PROC USES eax ebx ecx edx esi edi ptrObject:PTR GameObject
     je COPY
     cmp (GameObject PTR [esi]).sprite, 0 ;; Check if the object is dead
     jne COPY
-    mov eax, gamescore
-    cmp eax, (GameObject PTR [esi]).tag ;; Check if the target score has passed
+    mov eax, frameCount
+    cmp eax, (GameObject PTR [esi]).tag ;; Check if the target frame has passed
     jl COPY
 
     ;; It is time to respawn esi
@@ -548,7 +548,7 @@ NODEFLECT:
     INVOKE CheckFlag, (GameObject PTR [edi]).flags, RESPAWNING_OBJECT
     cmp eax, 0
     je L1
-    mov eax, gamescore
+    mov eax, frameCount
     add (GameObject PTR [edi]).tag, eax
 L1: ;; I'm running out of label names
     jmp COND ;; Return to checking more collisions, since this one didn't delete the player
@@ -571,7 +571,7 @@ NOCOLLECT:
     INVOKE CheckFlag, (GameObject PTR [edi]).flags, RESPAWNING_OBJECT
     cmp eax, 0
     je BOUNTY
-    mov eax, gamescore
+    mov eax, frameCount
     add (GameObject PTR [edi]).tag, eax
 
 BOUNTY:
@@ -593,7 +593,7 @@ SKIP:
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, RESPAWNING_OBJECT
     cmp eax, 0
     je BOUNTY2
-    mov eax, gamescore
+    mov eax, frameCount
     add (GameObject PTR [esi]).tag, eax
 
 BOUNTY2:
@@ -633,6 +633,7 @@ SpawnObjects ENDP
 RestartGame PROC USES edi eax ecx
 
     mov gamescore, 0
+    mov frameCount, 0
     mov SinceFire, -1
 
     ;; Zero out all gameobjects
@@ -683,6 +684,9 @@ ENABLE:
 
     ;; Increment game score
     inc gamescore
+    
+    ;; Increment frame counter (for respawns)
+    inc frameCount
 
     ;; Spawn any needed objects
     INVOKE SpawnObjects
@@ -856,6 +860,7 @@ GamePlay ENDP
 ;; Counters
 paused SDWORD 0
 SinceFire DWORD -1 ;; In frames
+frameCount DWORD 0
 
 ;; Game scoring
 gamescore DWORD 0
