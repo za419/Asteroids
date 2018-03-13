@@ -847,12 +847,15 @@ asteroid0 GameObject <OFFSET asteroid_000, 00c80000h, 00c80000h, ONE+HALF, ONE-H
 ;; Template object for initial asteroid
 ;; Respawns somewhat fasster than asteroid 0 initial
 ;; Respawns as asteroid1
-asteroid1_initial GameObject <OFFSET asteroid_005, SCREEN_WIDTH_FXPT+10*ONE, 01680000h, -ONE, -HALF, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 1, 3e11d600h, 7, OFFSET asteroid1>
+asteroid1_initial GameObject <OFFSET asteroid_005, SCREEN_WIDTH_FXPT+10*ONE, 01680000h, -ONE, -HALF, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 1, 3e11d600h, 7, OFFSET asteroid1_adjust>
 
 ;; Template object for general asteroid
 ;; Respawns somewhat faster than asteroid 0 general
 ;; Respawns as itself
-asteroid1 GameObject <OFFSET asteroid_001, -10*ONE, 00680000h, -2*ONE, ONE, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 6, 3e11d600h, 7, OFFSET asteroid1>
+;; First object: Slightly lower score to keep score increments from asteroids multiples of five
+asteroid1_adjust GameObject <OFFSET asteroid_001, -10*ONE, 00680000h, -2*ONE, ONE, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 6, 3e11d600h, 13, OFFSET asteroid1>
+;; Actual object: Correct score
+asteroid1 GameObject <OFFSET asteroid_001, -10*ONE, 00680000h, -2*ONE, ONE, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 6, 3e11d600h, 15, OFFSET asteroid1>
 
 ;; Shields
 
