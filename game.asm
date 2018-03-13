@@ -430,6 +430,25 @@ Collect PROC USES ecx esi edi ptrObject:PTR GameObject
     ret
 Collect ENDP
 
+;; Deflects a and b away from each other post-collision
+DeflectObjects PROC USES edi esi a:PTR GameObject, b:PTR GameObject
+
+    mov esi, a
+    mov edi, b
+
+    ;; For now, use a very un-physical, unrealistic, but very simple deflector
+    ;; That is to say, just negate both object's velocities
+    ;; (Effectively playing their motion back in reverse from their collision)
+    neg (GameObject PTR [esi]).xvelocity
+    neg (GameObject PTR [esi]).yvelocity
+    neg (GameObject PTR [esi]).rvelocity
+
+    neg (GameObject PTR [edi]).xvelocity
+    neg (GameObject PTR [edi]).yvelocity
+    neg (GameObject PTR [edi]).rvelocity
+    ret
+DeflectObjects ENDP
+
 ;; Checks for collisions with all game objects, in order
 ;; ptrObject is the first object to check collisions for (against all after it)
 ;; Index is the index this object appears in in the GameObjects list
@@ -491,7 +510,19 @@ COND:
     jmp EXIT
 
 COLLISION: ;; ptrObject collided with edi
-    ;; For the time being, just 'delete' both objects
+    mov esi, ptrObject
+
+    ;; For the time being, just 'delete' both objects, unless they're both marked as deflecting
+    INVOKE CheckFlag, (GameObject PTR [edi]).flags, COLLISION_DEFLECT
+    cmp eax, 0
+    je NODEFLECT
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, COLLISION_DEFLECT
+    cmp eax, 0
+    je NODEFLECT
+    INVOKE DeflectObjects, edi, esi
+    jmp COND ;; Deflecting objects may still collide on the deflecting frame
+
+NODEFLECT:
     INVOKE CheckFlag, (GameObject PTR [edi]).flags, COLLISION_COLLECTIBLE ;; Check for collectible object
     cmp eax, 0
     je CONT
@@ -535,7 +566,6 @@ BOUNTY:
 
     ;; Fallthrough
 SKIP:
-    mov esi, ptrObject
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, COLLISION_NODELETE ;; Check for non-deleting object
     cmp eax, 0
     jne EXIT
