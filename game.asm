@@ -898,6 +898,19 @@ asteroid1_initial GameObject <OFFSET asteroid_005, SCREEN_WIDTH_FXPT+10*ONE, 016
 ;; Respawns as itself
 asteroid1 GameObject <OFFSET asteroid_001, -10*ONE, 00680000h, -2*ONE, ONE, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 4*RESPAWN_SCALE, 150, OFFSET asteroid1>
 
+;; Third asteroid pair (both using same sprite)
+
+;; Template object for initial asteroid
+;; Respawns rather slowly (about every eight seconds)
+;; Respawns as asteroid2
+asteroid2_initial GameObject<OFFSET asteroid_000_003, ZERO, ZERO, 2*ONE, 2*ONE, PI, EPSILON+1, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 8*RESPAWN_SCALE, 200, OFFSET asteroid2>
+
+;; Template object for general asteroid
+;; Respawns very slowly (about every twelve seconds)
+;; Respawns as itself
+asteroid2 GameObject<OFFSET asteroid_000_003, -10*ONE, 50*ONE, 4*ONE, 3*ONE, ZERO, 2*EPSILON, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 8*RESPAWN_SCALE, 500, OFFSET asteroid2>
+
+
 ;; Shields
 
 ;; pExtra points to the shield the player will receive
