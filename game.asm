@@ -619,6 +619,7 @@ SpawnObjects PROC USES  ecx esi edi
 
     cmp gamescore, SPAWNTIME_ASTEROID1
     jl EXIT
+
     INVOKE CheckFlag, hasSpawned, SPAWNED_ASTEROID1
     cmp eax, 0
     jne AST2
@@ -634,6 +635,10 @@ SpawnObjects PROC USES  ecx esi edi
 AST2:
     cmp gamescore, SPAWNTIME_ASTEROID2
     jl EXIT
+
+    INVOKE CheckFlag, hasSpawned, SPAWNED_ASTEROID2
+    cmp eax, 0
+    jne EXIT
 
     ;; Spawn asteroid2 initial using movsb
     mov edi, OFFSET GameObjects+5*SIZEOF GameObject
@@ -921,12 +926,12 @@ asteroid1 GameObject <OFFSET asteroid_001, -10*ONE, 00680000h, -2*ONE, ONE, ZERO
 ;; Template object for initial asteroid
 ;; Respawns rather slowly (about every eight seconds)
 ;; Respawns as asteroid2
-asteroid2_initial GameObject<OFFSET asteroid_000_003, ZERO, ZERO, 2*ONE, 2*ONE, PI, EPSILON+1, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 8*RESPAWN_SCALE, 200, OFFSET asteroid2>
+asteroid2_initial GameObject <OFFSET asteroid_000_003, ZERO, ZERO, 2*ONE, 2*ONE, PI, EPSILON+1, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 8*RESPAWN_SCALE, 200, OFFSET asteroid2>
 
 ;; Template object for general asteroid
 ;; Respawns very slowly (about every twelve seconds)
 ;; Respawns as itself
-asteroid2 GameObject<OFFSET asteroid_000_003, -10*ONE, 50*ONE, 4*ONE, 3*ONE, ZERO, 2*EPSILON, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 8*RESPAWN_SCALE, 500, OFFSET asteroid2>
+asteroid2 GameObject <OFFSET asteroid_000_003, -10*ONE, 50*ONE, 4*ONE, 3*ONE, ZERO, 2*EPSILON, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 8*RESPAWN_SCALE, 500, OFFSET asteroid2>
 
 
 ;; Shields
