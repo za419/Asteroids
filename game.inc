@@ -104,6 +104,8 @@ GravitationalObject ENDS
 
 ;; Spawned identifiers
 SPAWNED_ASTEROID1 = 1 ;; Second asteroid pair (first is spawned onload)
+SPAWNED_ASTEROID2 = 2 ;; Third asteroid pair
 
 ;; Spawn timers
 SPAWNTIME_ASTEROID1 = 250
+SPAWNTIME_ASTEROID2 = 1000

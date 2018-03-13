@@ -191,6 +191,10 @@ GameInit PROC USES eax ecx edi esi
     add edi, SIZEOF GameObject
     ;; No data, will be copied in later
 
+    ;; Third asteroid
+    add edi, SIZEOF GameObject
+    ;; No data, will be copied in later
+
     ;; Shield powerup collectible
     ;; Just copy it over from its static location using movsb
     add edi, SIZEOF GameObject
@@ -611,11 +615,13 @@ CollideGameObject ENDP
 ;; Spawns any objects that are due to spawn on this frame
 SpawnObjects PROC USES  ecx esi edi
 
+    ;; By checking objects in order of spawntime, we can stop after we're before one spawn time
+
     cmp gamescore, SPAWNTIME_ASTEROID1
     jl EXIT
     INVOKE CheckFlag, hasSpawned, SPAWNED_ASTEROID1
     cmp eax, 0
-    jne EXIT
+    jne AST2
 
     ;; Spawn asteroid1 initial using movsb
     mov edi, OFFSET GameObjects+4*SIZEOF GameObject
@@ -624,7 +630,19 @@ SpawnObjects PROC USES  ecx esi edi
     rep movsb
     ;; Set flag for having spawned asteroid1
     or hasSpawned, SPAWNED_ASTEROID1
-    jmp EXIT
+
+AST2:
+    cmp gamescore, SPAWNTIME_ASTEROID2
+    jl EXIT
+
+    ;; Spawn asteroid2 initial using movsb
+    mov edi, OFFSET GameObjects+5*SIZEOF GameObject
+    mov esi, OFFSET asteroid2_initial
+    mov ecx, SIZEOF GameObject
+    rep movsb
+    ;; Set flag for having spawned asteroid2
+    or hasSpawned, SPAWNED_ASTEROID2
+
 EXIT:
     ret
 SpawnObjects ENDP
