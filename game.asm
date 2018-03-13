@@ -77,6 +77,13 @@ EXIT:
     ret
 CheckFlag ENDP
 
+;; Plays the music whose filename is in file
+Play PROC file:PTR BYTE
+
+    INVOKE PlaySound, file, 0, SND_FILENAME OR SND_ASYNC OR SND_NODEFAULT
+    ret
+Play ENDP
+
 CheckIntersect PROC USES ebx ecx edi esi oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DWORD, twoY:DWORD, twoBitmap:PTR EECS205BITMAP
 
     mov esi, oneBitmap
@@ -423,7 +430,7 @@ GameOver PROC USES esi
 
     ;; Play game over track
     mov esi, OFFSET endGameSound
-    INVOKE PlaySound, esi, 0, SND_FILENAME OR SND_ASYNC OR SND_NODEFAULT
+    INVOKE Play, esi
     ret
 GameOver ENDP
 
