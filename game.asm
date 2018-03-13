@@ -4824,7 +4824,7 @@ asteroid_005 EECS205BITMAP <21, 23, 255,, offset asteroid_005 + sizeof asteroid_
 
 
 
-asteroid_000_003 EECS205BITMAP <57, 72, 255,, offset asteroid_000_003 + sizeof asteroid_000_003>
+asteroid_000_003 EECS205BITMAP <57, 72, 7,, offset asteroid_000_003 + sizeof asteroid_000_003>
 	BYTE 007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h
 	BYTE 007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,024h,007h,007h
 	BYTE 007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h,007h
