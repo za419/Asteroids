@@ -769,24 +769,20 @@ endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0
 ;; Template object for initial asteroid
 ;; Tags have value equal to about 2 seconds at 3 GHz (2.1 billion clock cycles)
 ;; Initial asteroid respawns as asteroid0
-;; Flags set are 192, or RESPAWNING_OBJECT|KILL_SCORE
-asteroid_initial GameObject <OFFSET asteroid_003, 00a00000h, 01680000h, HALF, -HALF, ZERO, EPSILON+ROT_INC, 192, 1, 7e11d600h, 5, OFFSET asteroid0>
+asteroid_initial GameObject <OFFSET asteroid_003, 00a00000h, 01680000h, HALF, -HALF, ZERO, EPSILON+ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 1, 7e11d600h, 5, OFFSET asteroid0>
 
 ;; Template object for general asteroid
 ;; Tags have value equal to about 5 seconds at 3 GHz (15 billion clock cycles)
 ;; Respawns as itself
-;; Flags set are 192, or RESPAWNING_OBJECT|KILL_SCORE
-asteroid0 GameObject <OFFSET asteroid_000, 00c80000h, 00c80000h, ONE+HALF, ONE-HALF, ONE, -(EPSILON+ROT_INC), 192, 6, 7e11d600h, 10, OFFSET asteroid0>
+asteroid0 GameObject <OFFSET asteroid_000, 00c80000h, 00c80000h, ONE+HALF, ONE-HALF, ONE, -(EPSILON+ROT_INC), RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 6, 7e11d600h, 10, OFFSET asteroid0>
 
-;; Flag has value 96, or COLLISION_COLLECTIBLE|RESPAWNING_OBJECT
 ;; Together, the tags have value equal to about 10 seconds at 3GHz (30 billion clock cycles)
 ;; pExtra points to the shield the player will receive
 ;; pRespawn points back here, regenerating the pickup about 10 seconds after it's consumed on normal-ish computers
-shield_powerup GameObject <OFFSET shield_pickup, 00640000h, 00320000h, ONE*2, ONE*4, 0, EPSILON+1, 96, 0000000dh, 7c23ac00h, OFFSET player_shield, OFFSET shield_powerup>
+shield_powerup GameObject <OFFSET shield_pickup, 00640000h, 00320000h, ONE*2, ONE*4, 0, EPSILON+1, COLLISION_COLLECTIBLE OR RESPAWNING_OBJECT, 0000000dh, 7c23ac00h, OFFSET player_shield, OFFSET shield_powerup>
 
-;; Flag has value 24, or COPY_TRANSFORMS|COLLISION_NONPLAYER
 ;; pExtra points to the first game object, which is the player
-player_shield GameObject <OFFSET shield_power, 0, 0, 0, 0, 0, 0, 24, 0, 0, OFFSET GameObjects, 0>
+player_shield GameObject <OFFSET shield_power, 0, 0, 0, 0, 0, 0, COPY_TRANSFORMS OR COLLISION_NONPLAYER, 0, 0, OFFSET GameObjects, 0>
 
 gameover EECS205BITMAP <378, 79, 255,, offset gameover + sizeof gameover>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
