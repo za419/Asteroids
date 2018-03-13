@@ -636,6 +636,30 @@ EXIT:
     ret
 SpawnObjects ENDP
 
+;; Resets the game
+RestartGame PROC USES edi eax ecx
+
+    mov gamescore, 0
+    mov SinceFire, -1
+
+    ;; Zero out all gameobjects
+    mov edi, OFFSET GameObjects
+    mov ecx, SIZEOF GameObjects
+    xor eax, eax
+    rep stosb
+
+    ;; Un-end the game
+    mov edi, OFFSET endgame
+    mov (GameObject PTR [edi]).sprite, 0
+
+    ;; Stop sound effects
+    INVOKE Play, 0
+
+    ;; Reinitialize the game
+    INVOKE GameInit
+    ret
+RestartGame ENDP
+
 ;; Updates all game objects, in order
 UpdateGame PROC USES eax ecx esi edi
 
@@ -659,7 +683,7 @@ ENABLE:
     ;; Stop performing updates if the game is over
     mov esi, OFFSET endgame
     cmp (GameObject PTR [esi]).sprite, 0
-    jne EXIT
+    jne RESTART
 
     ;; Increment time since last fire (cooldown)
     inc SinceFire
@@ -818,6 +842,13 @@ SPAWN:
     ;; Fallthrough
 EXIT:
     ret
+
+RESTART:
+    ;; Enable game restart iff the game is over
+    cmp KeyPress, VK_R
+    jne EXIT
+    INVOKE RestartGame
+    jmp EXIT
 UpdateGame ENDP
 
 GamePlay PROC
