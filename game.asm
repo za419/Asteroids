@@ -289,14 +289,10 @@ UpdateGameObject PROC USES eax ebx ecx edx esi edi ptrObject:PTR GameObject
     je COPY
     cmp (GameObject PTR [esi]).sprite, 0 ;; Check if the object is dead
     jne COPY
-    rdtsc
-    cmp edx, (GameObject PTR [esi]).tag0 ;; Check if the upper dword of the timer is past the upper tag
-    jb SKIP ;; It is not yet time
-    ja RESPAWN ;; It is definitely time
-    cmp eax, (GameObject PTR [esi]).tag1 ;; Check if the lower dword of the timer is past the lower tag
-    jb SKIP ;; It is not yet time
+    mov eax, gamescore
+    cmp eax, (GameObject PTR [esi]).tag ;; Check if the target score has passed
+    jl COPY
 
-RESPAWN:
     ;; It is time to respawn esi
     mov edi, (GameObject PTR [esi]).pRespawn
     xchg esi, edi ;; For movsb
@@ -552,9 +548,8 @@ NODEFLECT:
     INVOKE CheckFlag, (GameObject PTR [edi]).flags, RESPAWNING_OBJECT
     cmp eax, 0
     je L1
-    rdtsc
-    add (GameObject PTR [edi]).tag0, edx
-    add (GameObject PTR [edi]).tag1, eax
+    mov eax, gamescore
+    add (GameObject PTR [edi]).tag, eax
 L1: ;; I'm running out of label names
     jmp COND ;; Return to checking more collisions, since this one didn't delete the player
 
@@ -576,9 +571,8 @@ NOCOLLECT:
     INVOKE CheckFlag, (GameObject PTR [edi]).flags, RESPAWNING_OBJECT
     cmp eax, 0
     je BOUNTY
-    rdtsc
-    add (GameObject PTR [edi]).tag0, edx
-    add (GameObject PTR [edi]).tag1, eax
+    mov eax, gamescore
+    add (GameObject PTR [edi]).tag, eax
 
 BOUNTY:
     ;; Check if the object grants a bounty, and if so, grant the appropriate number of points
@@ -599,9 +593,8 @@ SKIP:
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, RESPAWNING_OBJECT
     cmp eax, 0
     je BOUNTY2
-    rdtsc
-    add (GameObject PTR [esi]).tag0, edx
-    add (GameObject PTR [esi]).tag1, eax
+    mov eax, gamescore
+    add (GameObject PTR [esi]).tag, eax
 
 BOUNTY2:
     ;; Check if the object grants a bounty, and if so, grant the appropriate number of points
@@ -873,45 +866,44 @@ scoreStr BYTE 256 DUP(0)
 endGameSound BYTE "sound\Blonde Redhead - For the Damaged Coda.wav",0
 
 ;; Game objects
-endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0, 0>
+endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0>
 
 ;; First asteroid pair
 
 ;; Template object for initial asteroid
-;; Tags have value equal to about 2 seconds at 3 GHz (2.1 billion clock cycles)
+;; Respawn time is about two seconds
 ;; Initial asteroid respawns as asteroid0
-asteroid0_initial GameObject <OFFSET asteroid_003, 00a00000h, 01680000h, HALF, -HALF, ZERO, EPSILON+ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 1, 7e11d600h, 5, OFFSET asteroid0>
+asteroid0_initial GameObject <OFFSET asteroid_003, 00a00000h, 01680000h, HALF, -HALF, ZERO, EPSILON+ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 2*RESPAWN_SCALE, 5, OFFSET asteroid0>
 
 ;; Template object for general asteroid
-;; Tags have value equal to about 5 seconds at 3 GHz (15 billion clock cycles)
+;; Respawn time is about five seconds
 ;; Respawns as itself
-asteroid0 GameObject <OFFSET asteroid_000, 00c80000h, 00c80000h, ONE+HALF, ONE-HALF, ONE, -(EPSILON+ROT_INC), RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 6, 7e11d600h, 10, OFFSET asteroid0>
+asteroid0 GameObject <OFFSET asteroid_000, 00c80000h, 00c80000h, ONE+HALF, ONE-HALF, ONE, -(EPSILON+ROT_INC), RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 5*RESPAWN_SCALE, 10, OFFSET asteroid0>
 
 
 ;; Second asteroid pair
 
 ;; Template object for initial asteroid
-;; Respawns somewhat fasster than asteroid 0 initial
+;; Respawns somewhat faster than asteroid 0 initial (about 1.5 seconds)
 ;; Respawns as asteroid1
-asteroid1_initial GameObject <OFFSET asteroid_005, SCREEN_WIDTH_FXPT+10*ONE, 01680000h, -ONE, -HALF, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 1, 3e11d600h, 7, OFFSET asteroid1_adjust>
+asteroid1_initial GameObject <OFFSET asteroid_005, SCREEN_WIDTH_FXPT+10*ONE, 01680000h, -ONE, -HALF, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, (3*RESPAWN_SCALE)/2, 7, OFFSET asteroid1_adjust>
 
 ;; Template object for general asteroid
-;; Respawns somewhat faster than asteroid 0 general
+;; Respawns somewhat faster than asteroid 0 general (about four seconds)
 ;; Respawns as itself
 ;; First object: Slightly lower score to keep score increments from asteroids multiples of five
-asteroid1_adjust GameObject <OFFSET asteroid_001, -10*ONE, 00680000h, -2*ONE, ONE, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 6, 3e11d600h, 13, OFFSET asteroid1>
+asteroid1_adjust GameObject <OFFSET asteroid_001, -10*ONE, 00680000h, -2*ONE, ONE, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 4*RESPAWN_SCALE, 13, OFFSET asteroid1>
 ;; Actual object: Correct score
-asteroid1 GameObject <OFFSET asteroid_001, -10*ONE, 00680000h, -2*ONE, ONE, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 6, 3e11d600h, 15, OFFSET asteroid1>
+asteroid1 GameObject <OFFSET asteroid_001, -10*ONE, 00680000h, -2*ONE, ONE, ZERO, EPSILON+3*ROT_INC, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 4*RESPAWN_SCALE, 15, OFFSET asteroid1>
 
 ;; Shields
 
-;; Together, the tags have value equal to about 10 seconds at 3GHz (30 billion clock cycles)
 ;; pExtra points to the shield the player will receive
 ;; pRespawn points back here, regenerating the pickup about 10 seconds after it's consumed on normal-ish computers
-shield_powerup GameObject <OFFSET shield_pickup, 00640000h, 00320000h, ONE*2, ONE*4, 0, EPSILON+1, COLLISION_COLLECTIBLE OR RESPAWNING_OBJECT, 0000000dh, 7c23ac00h, OFFSET player_shield, OFFSET shield_powerup>
+shield_powerup GameObject <OFFSET shield_pickup, 00640000h, 00320000h, ONE*2, ONE*4, 0, EPSILON+1, COLLISION_COLLECTIBLE OR RESPAWNING_OBJECT, 10*RESPAWN_SCALE, OFFSET player_shield, OFFSET shield_powerup>
 
 ;; pExtra points to the first game object, which is the player
-player_shield GameObject <OFFSET shield_power, 0, 0, 0, 0, 0, 0, COPY_TRANSFORMS OR COLLISION_NONPLAYER, 0, 0, OFFSET GameObjects, 0>
+player_shield GameObject <OFFSET shield_power, 0, 0, 0, 0, 0, 0, COPY_TRANSFORMS OR COLLISION_NONPLAYER, 0, OFFSET GameObjects, 0>
 
 
 ;; Bitmaps
