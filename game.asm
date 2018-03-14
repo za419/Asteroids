@@ -937,10 +937,17 @@ NOPRESS: ;; Set normal fighter sprite
     mov (GameObject PTR [esi]).sprite, OFFSET fighter_000
     INVOKE PlayLoop, 0
 
-K3:
+K3: ;; Begin pause
     cmp KeyPress, VK_P
-    jne M1
+    jne K4
     mov paused, 1
+    jmp M1
+
+K4: ;; Alias space to mouse leftclick
+    cmp KeyPress, VK_SPACE
+    jne M1
+    mov edi, OFFSET MouseStatus
+    or (MouseInfo PTR [edi]).buttons, MK_LBUTTON
 
 M1:
     mov edi, OFFSET MouseStatus
