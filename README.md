@@ -36,7 +36,7 @@ Sound effects are stored in the `sound` folder. They can be freely deleted (they
 
 ## Credits
 
-All sprites are either mine or given by the EECS 205 course. The binary library `libgame.obj` was also given to me by the EECS 205 course, as was starter versions of the assembly files and includes, and the build script `make.bat`.
+All sprites are either mine, edited versions of public domain images, or given by the EECS 205 course. The binary library `libgame.obj` was also given to me by the EECS 205 course, as was starter versions of the assembly files and includes, and the build script `make.bat`.
 
 ### Sounds
 
@@ -53,3 +53,29 @@ For the Damaged Coda is a song by Blonde Redhead, from their album "Melody of Ce
 `engineloop` is sourced under the CC0 license from [freesound user qubodup](https://freesound.org/people/qubodup/sounds/146770/). This user has no outside affiliation with me, or with this project, and has not in any way endorsed this project. The file has been edited to reduce its volume.
 
 `blast` was created by me. It is a short sine wave, chirping from 800Hz to 200Hz over 0.3 seconds.
+
+## Details
+
+### Bitmaps
+
+Here is a list of all bitmaps and their sources:
+
+ - ![bitmap](sprites/asteroid_000.png) is used for the general `asteroid0`, and was given by EECS 205
+ - ![bitmap](sprites/asteroid_001.png) is used for the general `asteroid1`, and was given by EECS 205
+ - ![bitmap](sprites/asteroid_002.png) is used for both types of `asteroid3`, and was given by EECS 205
+ - ![bitmap](sprites/asteroid_003.png) is used for the initial `asteroid0`, and was given by EECS 205
+ - ![bitmap](sprites/asteroid_005.png) is used for the initial `asteroid1`, and was given by EECS 205
+ - ![bitmap](sprites/asteroid_000_003.png) is used for both types of `asteroid2`, and was made by me, editing togther the general `asteroid0` and initial `asteroid0` sprites
+ - ![bitmap](sprites/background.png) is used as the background for the game.
+   - It is a cropped and downscaled version of the public domain [Hubble Ultra Deep Field](http://hubblesite.org/image/3380/news_release/2014-27), with colors brought down to those available to the game.
+   - It is the only bitmap to bypass the `blit.asm` drawing routines - Instead, for performance (as it doesn't require transforms or transparency, and covers the whole screen, and is drawn every frame), it is copied over the screen buffer at the beginning of every frame using `rep movsb`.
+ - ![bitmap](sprites/blast.png) is used as the projectile fired by the fighter, and was made by me from scratch.
+ - ![bitmap](sprites/fighter_000.png) is the 'resting' fighter sprite, and was given by EECS 205
+ - ![bitmap](sprites/fighter_002.png) is the first frame of the fighter's engines animation, and was given by EECS 205
+ - ![bitmap](sprites/fighter_001.png) is the second frame of the fighter's engines animation, and was given by EECS 205
+ - ![bitmap](sprites/rcs_ccw.png) is the fighter overlay for firing thrusters for counter-clockwise rotation, and was made by me from scratch.
+ - ![bitmap](sprites/rcs_cw.png) is the fighter overlay for firing thrusters for clockwise rotation, and was made by me from scratch.
+ - ![bitmap](sprites/shield_power.png) is overlaid on the fighter to show that it is shielded, and was made by me from scratch.
+ - ![bitmap](sprites/shield_pickup.png) is the sprite for the collectible shield powerup, and was made by me from scratch.
+ - ![bitmap](sprites/paused.png) is overlaid on the game when the game is paused, and was made by me from scratch - The used font is [IBM CGAThin](https://int10h.org/oldschool-pc-fonts/fontlist/)
+ - ![bitmap](sprites/gameover.png) is overlaid on the game after the player dies, and was made by me from scratch - The used font is [Butcherman](https://fonts.google.com/specimen/Butcherman)
