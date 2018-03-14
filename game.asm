@@ -195,6 +195,10 @@ GameInit PROC USES eax ecx edi esi
     add edi, SIZEOF GameObject
     ;; No data, will be copied in later
 
+    ;; Fourth asteroid
+    add edi, SIZEOF GameObject
+    ;; No data, will be copied in later
+
     ;; Shield powerup collectible
     ;; Just copy it over from its static location using movsb
     add edi, SIZEOF GameObject
@@ -203,8 +207,8 @@ GameInit PROC USES eax ecx edi esi
     rep movsb
 
     ;; Set spawnedobjects
-    mov SpawnedObjects, 8
-    mov STATIC_OBJECTS, 8
+    mov SpawnedObjects, 9
+    mov STATIC_OBJECTS, 9
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 
