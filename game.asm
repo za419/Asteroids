@@ -77,6 +77,26 @@ EXIT:
     ret
 CheckFlag ENDP
 
+;; Same behavior as CheckFlag, but for the less common doubleword case
+CheckFlagd PROC field:DWORD, flag:DWORD
+
+    mov eax, field
+    and eax, flag
+    cmp eax, 0
+    je EXIT
+
+    cmp eax, flag
+    je TRUE
+    xor eax, eax
+    jmp EXIT
+
+TRUE:
+    mov eax, 1
+    ;; Fallthrough
+EXIT:
+    ret
+CheckFlagd ENDP
+
 ;; Plays the music whose filename is in file
 Play PROC file:PTR BYTE
 
@@ -451,21 +471,90 @@ Collect PROC USES ecx esi edi ptrObject:PTR GameObject
 Collect ENDP
 
 ;; Deflects a and b away from each other post-collision
-DeflectObjects PROC USES edi esi a:PTR GameObject, b:PTR GameObject
+DeflectObjects PROC USES eax ebx edx edi esi a:PTR GameObject, b:PTR GameObject
 
     mov esi, a
     mov edi, b
 
-    ;; For now, use a very un-physical, unrealistic, but very simple deflector
-    ;; That is to say, just negate both object's velocities
-    ;; (Effectively playing their motion back in reverse from their collision)
-    neg (GameObject PTR [esi]).xvelocity
-    neg (GameObject PTR [esi]).yvelocity
-    neg (GameObject PTR [esi]).rvelocity
+    xor edx, edx ;; edx tracks whether we have made any velocity changes
 
+    ;; Deflect based on the difference between centers.
+    ;; If one center is within a halfdimension of the other along that axis, negate it's motion along the other
+
+    ;; Start with esi along x
+    INVOKE FixedSubtract, (GameObject PTR [esi]).xcenter, (GameObject PTR [edi]).xcenter
+    INVOKE AbsoluteValue, eax ;; Distance between xcenters
+    mov ebx, eax
+    mov eax, (GameObject PTR [edi]).sprite
+    INVOKE FixedMultiply, (EECS205BITMAP PTR [eax]).dwWidth, HALF
+    cmp ebx, eax ;; Compare difference between xcenters to half of edi's width
+    jg EDIX ;; If distance<halfwidth, invert esi.yvelocity
+    neg (GameObject PTR [esi]).yvelocity
+    or edx, 1
+
+EDIX: ;; Now, edi along x
+    ;; ebx still holds xcenter distance
+    mov eax, (GameObject PTR [esi]).sprite
+    INVOKE FixedMultiply, (EECS205BITMAP PTR [eax]).dwWidth, HALF
+    cmp ebx, eax ;; Compare difference between xcenters to half of esi's width
+    jg ESIY ;; If distance<halfwidth, invert edi.yvelocity
+    neg (GameObject PTR [edi]).yvelocity
+    or edx, 00010000h
+
+ESIY: ;; Now, esi along y
+    INVOKE FixedSubtract, (GameObject PTR [esi]).ycenter, (GameObject PTR [edi]).ycenter
+    INVOKE AbsoluteValue, eax ;; Distance between ycenters
+    mov ebx, eax
+
+    ;; Skip compare if we inverted esi last time
+    INVOKE CheckFlagd, edx, 1
+    cmp eax, 0
+    jne EDIY
+
+    ;; If we didn't invert esi last time, check if we should this time
+    mov eax, (GameObject PTR [edi]).sprite
+    INVOKE FixedMultiply, (EECS205BITMAP PTR [eax]).dwHeight, HALF
+    cmp ebx, eax ;; Compare difference between ycenters to half of edi's height
+    jg EDIY ;; If distance<halfheight, invert esi.xvelocity
+    neg (GameObject PTR [esi]).xvelocity
+    or edx, 2
+
+EDIY: ;; Now, edi along ycenter
+    ;; ebx still holds ycenter distance
+
+    ;; Skip compare if we inverted edi last time
+    INVOKE CheckFlagd, edx, 00010000h
+    cmp eax, 0
+    jne CORNERY ;; Don't need to double check if we know we inverted edi already
+
+    ;; If we didn't invert esi last time, check if we should this time
+    mov eax, (GameObject PTR [esi]).sprite
+    INVOKE FixedMultiply, (EECS205BITMAP PTR [eax]).dwWidth, HALF
+    cmp ebx, eax ;; Compare difference between ycenters to half of esi's height
+    jg CORNERD ;; If distance<halfheight, invert edi.xvelocity
+    neg (GameObject PTR [edi]).xvelocity
+    or edx, 00020000h
+
+CORNERD: ;; If neither of edi's velocities were changed, it was a corner hit on edi
+    mov eax, edx
+    and eax, 0ffff0000h
+    cmp eax, 0 ;; Check if edx has either of edi's potential flags set
+    jne CORNERY
+    ;; Invert both of edi's translational velocities if edi has not had any change
     neg (GameObject PTR [edi]).xvelocity
     neg (GameObject PTR [edi]).yvelocity
+
+CORNERY: ;; If neither of esi's velocities were changed, it was a corner hit on esi
+    and edx, 0000ffffh
+    cmp edx, 0 ;; Check if edx has either of esi's potential flags set
+    jne ROTATIONS
+    ;; Invert both of esi's translational velocities if esi has not had any change
+    neg (GameObject PTR [esi]).xvelocity
+    neg (GameObject PTR [esi]).yvelocity
+
+ROTATIONS: ;; Invert both rotational velocities and exit
     neg (GameObject PTR [edi]).rvelocity
+    neg (GameObject PTR [esi]).rvelocity
     ret
 DeflectObjects ENDP
 
@@ -957,12 +1046,12 @@ asteroid2 GameObject <OFFSET asteroid_000_003, -10*ONE, 50*ONE, 4*ONE, 3*ONE, ZE
 ;; Template object for initial asteroid
 ;; Respawns very slowly (about every fifteen seconds)
 ;; Respawns as asteroid3
-asteroid3_initial GameObject <OFFSET asteroid_002, ZERO, SCREEN_HEIGHT_FXPT, 2*ONE, -4*ONE, PI, -EPSILON-1, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 15*RESPAWN_SCALE, 750, OFFSET asteroid2>
+asteroid3_initial GameObject <OFFSET asteroid_002, ZERO, SCREEN_HEIGHT_FXPT, 2*ONE, -4*ONE, PI, -EPSILON-1, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 15*RESPAWN_SCALE, 750, OFFSET asteroid3>
 
 ;; Template object for general asteroid
 ;; Respawns extremely slowly (about every twenty seconds)
 ;; Respawns as itself
-asteroid3 GameObject <OFFSET asteroid_002, SCREEN_WIDTH_FXPT+10*ONE, -10*ONE, 6*ONE, 10*ONE, ZERO, 4*EPSILON, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 20*RESPAWN_SCALE, 1000, OFFSET asteroid2>
+asteroid3 GameObject <OFFSET asteroid_002, SCREEN_WIDTH_FXPT+10*ONE, -10*ONE, 6*ONE, 10*ONE, ZERO, 4*EPSILON, RESPAWNING_OBJECT OR KILL_SCORE OR COLLISION_DEFLECT, 20*RESPAWN_SCALE, 1000, OFFSET asteroid3>
 
 
 ;; Shields
