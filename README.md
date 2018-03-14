@@ -17,7 +17,16 @@ Score is granted on both a time basis and on a per-kill basis.
 
 1 point is awarded each time the game advances a frame.
 
-Each type of asteroid (there are currently eight, although some share sprites) has its own score bounty, ranging from 50 points for the first spawned asteroid to 1000 points for the respawned last asteroid.
+Each type of asteroid (there are currently eight, although some share sprites) has its own score bounty, ranging from 50 points for the first spawned asteroid to 1000 points for the respawned last asteroid:
+
+1. ![bitmap](sprites/asteroid_003.png) is worth 50 points
+2. ![bitmap](sprites/asteroid_000.png) is worth 100 points
+3. ![bitmap](sprites/asteroid_005.png) is worth 75 points
+4. ![bitmap](sprites/asteroid_001.png) is worth 150 points
+5. ![bitmap](sprites/asteroid_000_003.png) (first spawn) is worth 200 points
+6. ![bitmap](sprites/asteroid_000_003.png) (respawns) is worth 500 points
+7. ![bitmap](sprites/asteroid_002.png) (first spawn) is worth 750 points
+8. ![bitmap](sprites/asteroid_002.png) (respawns) is worth 1000 points
 
 Score will be granted to the player for the frame they die on, and for killing an asteroid if they do so with their fighter - They will not, however, gain any points for blaster shots which impact on the last frame of the game.
 
