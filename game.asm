@@ -1028,9 +1028,12 @@ SPAWN:
     INVOKE FixedMultiply, eax, BLAST_VELOCITY
     INVOKE FixedSubtract, (GameObject PTR [esi]).yvelocity, eax
     mov (GameObject PTR [edi]).yvelocity, eax
-
     ;; Fallthrough
 EXIT:
+    ;; Prevents sticking fire and accidental fire queuing
+    mov edi, OFFSET MouseStatus
+    and (MouseInfo PTR [edi]).buttons, NOT MK_LBUTTON
+
     ret
 
 RESTART:
