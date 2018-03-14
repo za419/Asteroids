@@ -122,6 +122,11 @@ PlayLoop PROC USES eax esi file:PTR BYTE
 
     cmp esi, lastPlayed
     je SKIP
+    cmp lastlooped, 1
+    jne NOINTERRUPT ;; Interrupt other loops
+    INVOKE PlaySound, 0, 0, 0
+
+NOINTERRUPT:
     INVOKE PlaySound, esi, 0, SND_FILENAME OR SND_ASYNC OR SND_NODEFAULT OR SND_LOOP OR SND_NOSTOP
     cmp eax, 0 ;; If we didn't actually play sound, don't set our trackers
     je SKIP
