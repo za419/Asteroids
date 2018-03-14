@@ -112,6 +112,20 @@ SKIP:
     ret
 Play ENDP
 
+;; Like Play, but loops the effect
+;; Shares lastPlayed
+PlayLoop PROC USES esi file:PTR BYTE
+
+    mov esi, file
+
+    cmp esi, lastPlayed
+    je SKIP
+    mov lastPlayed, esi
+    INVOKE PlaySound, esi, 0, SND_FILENAME OR SND_ASYNC OR SND_NODEFAULT OR SND_LOOP
+SKIP:
+    ret
+PlayLoop ENDP
+
 CheckIntersect PROC USES ebx ecx edi esi oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DWORD, twoY:DWORD, twoBitmap:PTR EECS205BITMAP
 
     mov esi, oneBitmap
@@ -891,7 +905,7 @@ K2: ;; TODO: This should accelerate the player
 
     ;; Play "engines" sound effect
     mov eax, OFFSET engines_path
-    INVOKE Play, eax
+    INVOKE PlayLoop, eax
 
     ;; Set engines-on fighter sprite
     ;; Choice of sprite varies per-frame, starting on fighter_002
