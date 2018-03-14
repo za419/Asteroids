@@ -967,6 +967,9 @@ M1:
     mov SpawnedObjects, ecx
 
 SPAWN:
+    mov ecx, OFFSET blast_path
+    INVOKE Play, ecx
+
     imul ecx, SpawnedObjects, SIZEOF GameObject
     inc SpawnedObjects
     mov edi, OFFSET GameObjects
@@ -979,6 +982,7 @@ SPAWN:
     INVOKE FixedMultiply, eax, HALF
     mov ecx, eax
     mov eax, (GameObject PTR [esi]).sprite
+
     INVOKE ToFixedPoint, (EECS205BITMAP PTR [eax]).dwHeight
     INVOKE FixedMultiply, eax, HALF
     INVOKE FixedAdd, eax, 15*ONE
@@ -1043,6 +1047,7 @@ scoreStr BYTE 256 DUP(0)
 endGameSound BYTE "sound\Blonde Redhead - For the Damaged Coda.wav",0
 engines_path BYTE "sound\engineloop.wav",0
 rcs_path BYTE "sound\rcs.wav",0
+blast_path BYTE "sound\blast.wav",0
 
 ;; Game objects
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0>
