@@ -897,7 +897,7 @@ SKIP:
 
     cmp KeyPress, VK_LEFT
     jne K1
-    mov eax, OFFSET rcs_path
+    mov eax, OFFSET rcs_ccw_path
     INVOKE PlayLoop, eax
     mov (GameObject PTR [edi]).sprite, OFFSET rcs_ccw ;; Set RCS sprite
     INVOKE FixedAdd, (GameObject PTR [esi]).rvelocity, ROT_INC
@@ -909,7 +909,7 @@ SKIP:
 K1:
     cmp KeyPress, VK_RIGHT
     jne K2
-    mov eax, OFFSET rcs_path
+    mov eax, OFFSET rcs_cw_path
     INVOKE PlayLoop, eax
     mov (GameObject PTR [edi]).sprite, OFFSET rcs_cw ;; Set RCS sprite
     INVOKE FixedSubtract, (GameObject PTR [esi]).rvelocity, ROT_INC
@@ -1067,7 +1067,8 @@ scoreStr BYTE 256 DUP(0)
 lastlooped BYTE 0
 endGameSound BYTE "sound\Blonde Redhead - For the Damaged Coda.wav",0
 engines_path BYTE "sound\engineloop.wav",0
-rcs_path BYTE "sound\rcs.wav",0
+rcs_cw_path BYTE "sound\rcs_cw.wav",0
+rcs_ccw_path BYTE "sound\rcs_ccw.wav",0
 blast_path BYTE "sound\blast.wav",0
 
 ;; Game objects
