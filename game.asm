@@ -642,7 +642,7 @@ AST2:
 
     INVOKE CheckFlag, hasSpawned, SPAWNED_ASTEROID2
     cmp eax, 0
-    jne EXIT
+    jne AST3
 
     ;; Spawn asteroid2 initial using movsb
     mov edi, OFFSET GameObjects+5*SIZEOF GameObject
@@ -652,6 +652,21 @@ AST2:
     ;; Set flag for having spawned asteroid2
     or hasSpawned, SPAWNED_ASTEROID2
 
+AST3:
+    cmp gamescore, SPAWNTIME_ASTEROID3
+    jl EXIT
+
+    INVOKE CheckFlag, hasSpawned, SPAWNED_ASTEROID3
+    cmp eax, 0
+    jne EXIT
+
+    ;; Spawn asteroid3 initial using movsb
+    mov edi, OFFSET GameObjects+6*SIZEOF GameObject
+    mov esi, OFFSET asteroid3_initial
+    mov ecx, SIZEOF GameObject
+    rep movsb
+    ;; Set flag for having spawned asteroid3
+    or hasSpawned, SPAWNED_ASTEROID3
 EXIT:
     ret
 SpawnObjects ENDP
