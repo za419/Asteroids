@@ -79,3 +79,16 @@ Here is a list of all bitmaps and their sources:
  - ![bitmap](sprites/shield_pickup.png) is the sprite for the collectible shield powerup, and was made by me from scratch.
  - ![bitmap](sprites/paused.png) is overlaid on the game when the game is paused, and was made by me from scratch - The used font is [IBM CGAThin](https://int10h.org/oldschool-pc-fonts/fontlist/)
  - ![bitmap](sprites/gameover.png) is overlaid on the game after the player dies, and was made by me from scratch - The used font is [Butcherman](https://fonts.google.com/specimen/Butcherman)
+ 
+### Game Mechanics
+
+This is a short list of certain game mechanics which are worth pointing out.
+
+1. Everything wraps around the screen. But while it does so, it spends a brief period entirely offscreen - Do not assume that things just disappeared!
+2. Blaster shots kill you if they hit you. Use them sparingly, and don't take too many risky shots - You might get swarmed.
+3. Asteroids always respawn on set timers (relative to framerate), at set locations. Be careful staying near spawn locations if an asteroid might spawn soon - There is no grace period.
+4. Your blaster has a cooldown of about 2 seconds. Don't use it if you're going to need it soon.
+5. Your rotation doesn't stop by itself. Don't spin the ship too fast - There's a limit to how fast it will spin, but you'll lose control before you hit it.
+6. Your shield can and will be hit by your blaster if you fire while shielded. Don't fire unless you need to - But if you need to, plan ahead!
+7. The shield pickup respawns on a set timer, starting from when you last collected it. Using it effectively will mean using your shield offensively just before you can collect a new shield - They don't stack.
+8. Asteroids do not destroy each other. Instead, they bounce off each other. Don't expect to be safe in the vicinity of two asteroids that might hit each other.
