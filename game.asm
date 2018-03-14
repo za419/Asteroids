@@ -30,6 +30,7 @@ SND_FILENAME = 20000h
 SND_LOOP = 8h
 SND_ASYNC = 1h
 SND_NODEFAULT = 2h
+SND_NOSTOP = 10h
 
 ;; Has keycodes
 include keys.inc
@@ -107,6 +108,7 @@ Play PROC USES eax esi file:PTR BYTE
     cmp esi, lastPlayed
     je SKIP
     mov lastPlayed, esi
+    mov lastlooped, 0
     INVOKE PlaySound, esi, 0, SND_FILENAME OR SND_ASYNC OR SND_NODEFAULT
 SKIP:
     ret
@@ -121,10 +123,23 @@ PlayLoop PROC USES eax esi file:PTR BYTE
     cmp esi, lastPlayed
     je SKIP
     mov lastPlayed, esi
-    INVOKE PlaySound, esi, 0, SND_FILENAME OR SND_ASYNC OR SND_NODEFAULT OR SND_LOOP
+    mov lastlooped, 1
+    INVOKE PlaySound, esi, 0, SND_FILENAME OR SND_ASYNC OR SND_NODEFAULT OR SND_LOOP OR SND_NOSTOP
 SKIP:
     ret
 PlayLoop ENDP
+
+;; Interrupts playback iff the last played effect was looping
+InterruptLoops PROC USES eax
+
+    cmp lastlooped, 0
+    je SKIP
+    INVOKE PlaySound, 0, 0, 0
+    mov lastlooped, 0
+    mov lastPlayed, 0
+SKIP:
+    ret
+InterruptLoops ENDP
 
 CheckIntersect PROC USES ebx ecx edi esi oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DWORD, twoY:DWORD, twoBitmap:PTR EECS205BITMAP
 
@@ -935,7 +950,7 @@ ACCELERATE: ;; Accelerate fighter
 
 NOPRESS: ;; Set normal fighter sprite
     mov (GameObject PTR [esi]).sprite, OFFSET fighter_000
-    INVOKE PlayLoop, 0
+    INVOKE InterruptLoops
 
 K3: ;; Begin pause
     cmp KeyPress, VK_P
@@ -1044,6 +1059,7 @@ scoreFmtStr BYTE "Score: %d",0
 scoreStr BYTE 256 DUP(0)
 
 ;; Game music
+lastlooped BYTE 0
 endGameSound BYTE "sound\Blonde Redhead - For the Damaged Coda.wav",0
 engines_path BYTE "sound\engineloop.wav",0
 rcs_path BYTE "sound\rcs.wav",0
