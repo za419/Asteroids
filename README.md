@@ -39,7 +39,7 @@ There are three "fundamental" sounds:
 
 The two RCS sound effects are modifications of `engineloop` to stereo.
 
-For the Damaged Coda is a song by Blonde Redhead, from their album "Melody of Certain Damaged Lemons". It is used here under US Fair Use law as I understand it, for non-commercial, educational purposes only. That is, neither I nor anyone else may profit from this game so long as this file is present, and this game is produced as an educational project. It has been trimmed to fit its purpose in the game.
+For the Damaged Coda is a song by Blonde Redhead, from their album "Melody of Certain Damaged Lemons", which can be purchased [on Amazon](https://www.amazon.com/Melody-Certain-Damaged-Lemons-REDHEAD/dp/B00004SW9X). It is used here under US Fair Use law as I understand it, for non-commercial, educational purposes only. That is, neither I nor anyone else may profit from this game so long as this file is present, and this game is produced as an educational project. It has been trimmed to fit its purpose in the game.
 
 `engineloop` is sourced under the CC0 license from [freesound user qubodup](https://freesound.org/people/qubodup/sounds/146770/). This user has no outside affiliation with me, or with this project, and has not in any way endorsed this project. The file has been edited to reduce its volume.
 
