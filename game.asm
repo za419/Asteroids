@@ -1029,7 +1029,7 @@ scoreStr BYTE 256 DUP(0)
 
 ;; Game music
 endGameSound BYTE "sound\Blonde Redhead - For the Damaged Coda.wav",0
-engines_path BYTE "sound\enginesloop.wav",0
+engines_path BYTE "sound\engineloop.wav",0
 
 ;; Game objects
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0>
