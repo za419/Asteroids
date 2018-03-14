@@ -42,6 +42,8 @@ OBJECTS_SIZE = 100 ;; Constant of max game objects
     SpawnedObjects DWORD ?
     STATIC_OBJECTS DWORD ?
 
+    lastPlayed DWORD ? ;; Pointer to last played filename
+
     ;; Data flags
     hasSpawned WORD ? ;; Set bits to track which objects have already been spawned (see game.inc for values)
 .CODE
@@ -98,9 +100,15 @@ EXIT:
 CheckFlagd ENDP
 
 ;; Plays the music whose filename is in file
-Play PROC file:PTR BYTE
+Play PROC USES esi file:PTR BYTE
 
-    INVOKE PlaySound, file, 0, SND_FILENAME OR SND_ASYNC OR SND_NODEFAULT
+    mov esi, file
+
+    cmp esi, lastPlayed
+    je SKIP
+    mov lastPlayed, esi
+    INVOKE PlaySound, esi, 0, SND_FILENAME OR SND_ASYNC OR SND_NODEFAULT
+SKIP:
     ret
 Play ENDP
 
@@ -164,6 +172,9 @@ GameInit PROC USES eax ecx edi esi
 
     ;; No objects have spawned at the beginning of the game
     mov hasSpawned, 0
+
+    ;; No sound has been played at the beginning of the game
+    mov lastPlayed, 0
 
     ;; Initialize the player (who is always the first object in the GameObjects array)
     mov edi, OFFSET GameObjects
@@ -878,6 +889,10 @@ K2: ;; TODO: This should accelerate the player
     cmp KeyPress, VK_UP
     jne NOPRESS
 
+    ;; Play "engines" sound effect
+    mov eax, OFFSET engines_path
+    INVOKE Play, eax
+
     ;; Set engines-on fighter sprite
     ;; Choice of sprite varies per-frame, starting on fighter_002
     cmp (GameObject PTR [esi]).sprite, OFFSET fighter_002
@@ -1000,6 +1015,7 @@ scoreStr BYTE 256 DUP(0)
 
 ;; Game music
 endGameSound BYTE "sound\Blonde Redhead - For the Damaged Coda.wav",0
+engines_path BYTE "sound\enginesloop.wav",0
 
 ;; Game objects
 endgame GameObject <0, 0, 00500000h, ZERO, ZERO, ZERO, ZERO, COLLISION_IGNORE, 0, 0, 0>
