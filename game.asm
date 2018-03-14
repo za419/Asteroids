@@ -931,6 +931,7 @@ ACCELERATE: ;; Accelerate fighter
 
 NOPRESS: ;; Set normal fighter sprite
     mov (GameObject PTR [esi]).sprite, OFFSET fighter_000
+    INVOKE PlayLoop, 0
 
 K3:
     cmp KeyPress, VK_P
