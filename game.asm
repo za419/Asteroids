@@ -100,7 +100,7 @@ EXIT:
 CheckFlagd ENDP
 
 ;; Plays the music whose filename is in file
-Play PROC USES esi file:PTR BYTE
+Play PROC USES eax esi file:PTR BYTE
 
     mov esi, file
 
@@ -114,7 +114,7 @@ Play ENDP
 
 ;; Like Play, but loops the effect
 ;; Shares lastPlayed
-PlayLoop PROC USES esi file:PTR BYTE
+PlayLoop PROC USES eax esi file:PTR BYTE
 
     mov esi, file
 
