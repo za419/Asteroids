@@ -1,5 +1,7 @@
 echo off
 
+taskkill /im game.exe /f
+
 :::::::::::::::::::::::::::::::::::::::::::::::
 :::					    :::
 ::: set MASMPATH and MASMLIBPATH below 	    :::
