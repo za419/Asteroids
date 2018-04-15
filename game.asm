@@ -1138,6 +1138,15 @@ shield_powerup GameObject <OFFSET shield_pickup, 00640000h, 00320000h, ONE*2, ON
 ;; pExtra points to the first game object, which is the player
 player_shield GameObject <OFFSET shield_power, 0, 0, 0, 0, 0, 0, COPY_TRANSFORMS OR COLLISION_NONPLAYER, 0, OFFSET GameObjects, 0>
 
+;; Rapidfire
+
+;; pExtra points to the weapon charge the player will receive
+;; pRespawn points back here, regenerating the pickup about 30 seconds after it's consumed
+rapidfire_powerup GameObject <OFFSET rapidfire_pickup, SCREEN_WIDTH_FXPT, SCREEN_HEIGHT_FXPT, ONE*5, -ONE*3, 0, EPSILON, COLLISION_COLLECTIBLE OR RESPAWNING_OBJECT, 30*RESPAWN_SCALE, OFFSET player_rapidfire, OFFSET rapidfire_powerup>
+
+;; pExtra points to the first game object, which is the player
+player_rapidfire GameObject <OFFSET rapidfire_power, 0, 0, 0, 0, 0, 0, COPY_TRANSFORMS OR COLLISION_IGNORE, 0, OFFSET GameObjects, 0>
+
 
 ;; Bitmaps
 
