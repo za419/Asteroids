@@ -3639,7 +3639,16 @@ blast EECS205BITMAP <6, 6, 255,, offset blast + sizeof blast>
 
 
 
+rapidblast EECS205BITMAP <6, 6, 0,, offset rapidblast + sizeof rapidblast>
+	BYTE 000h,080h,0e0h,0e0h,080h,000h,080h,0e0h,0e0h,0e0h,0e0h,080h,0e0h,0e0h,0e0h,0e0h
+	BYTE 0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,080h,0e0h,0e0h,0e0h,0e0h,080h,000h,080h
+	BYTE 0e0h,0e0h,080h,000h
 
+    
+    
+    
+    
+    
 
 
 
