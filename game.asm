@@ -1241,7 +1241,8 @@ player_shield GameObject <OFFSET shield_power, 0, 0, 0, 0, 0, 0, COPY_TRANSFORMS
 rapidfire_powerup GameObject <OFFSET rapidfire_pickup, SCREEN_WIDTH_FXPT, SCREEN_HEIGHT_FXPT, ONE*5, -ONE*3, 0, EPSILON, COLLISION_COLLECTIBLE OR RESPAWNING_OBJECT, 30*RESPAWN_SCALE, OFFSET player_rapidfire, OFFSET rapidfire_powerup>
 
 ;; pExtra points to the first game object, which is the player
-player_rapidfire GameObject <OFFSET rapidfire_power, 0, 0, 0, 0, 0, 0, COPY_TRANSFORMS OR COLLISION_IGNORE, 0, OFFSET GameObjects, 0>
+;; Tag is 15 (frames per seconds) * 3 (seconds) - The duration of the buff in frames
+player_rapidfire GameObject <OFFSET rapidfire_power, 0, 0, 0, 0, 0, 0, COPY_TRANSFORMS OR COLLISION_IGNORE OR DESPAWNING_OBJECT, 15*3, OFFSET GameObjects, 0>
 
 
 ;; Bitmaps
