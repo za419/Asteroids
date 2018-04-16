@@ -363,6 +363,28 @@ UpdateGameObject PROC USES eax ebx ecx edx esi edi ptrObject:PTR GameObject
 
     mov esi, ptrObject
 
+    INVOKE CheckFlag, (GameObject PTR [esi]).flags, DESPAWNING_OBJECT ;; Handle despawning objects
+    cmp eax, 0
+    jne RESPAWN
+
+    ;; Check if the object is dead
+    cmp (GameObject PTR [esi]).sprite, 0
+    jmp RESPAWN ;; Skip despawning dead objects
+
+    ;; Check if the object despawns this frame (if it's tag is already 0)
+    cmp (GameObject PTR [esi]).tag, 0
+    je DESPAWN
+    ;; Reduce its life by one tick
+    dec (GameObject PTR [esi]).tag
+    jmp COPY ;; Don't need to check respawning: We know the object is alive.
+
+    ;; Kill the object and move to transform-copying.
+    ;; Objects cannot despawn and respawn on the same frame.
+DESPAWN:
+    mov (GameObject PTR [esi]).sprite, 0 ;; Kill the object
+    jmp COPY
+
+RESPAWN:
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, RESPAWNING_OBJECT ;; Handle respawning objects
     cmp eax, 0
     je COPY
