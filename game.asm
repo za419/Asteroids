@@ -365,11 +365,11 @@ UpdateGameObject PROC USES eax ebx ecx edx esi edi ptrObject:PTR GameObject
 
     INVOKE CheckFlag, (GameObject PTR [esi]).flags, DESPAWNING_OBJECT ;; Handle despawning objects
     cmp eax, 0
-    jne RESPAWN
+    je RESPAWN
 
     ;; Check if the object is dead
     cmp (GameObject PTR [esi]).sprite, 0
-    jmp RESPAWN ;; Skip despawning dead objects
+    je RESPAWN ;; Skip despawning dead objects
 
     ;; Check if the object despawns this frame (if it's tag is already 0)
     cmp (GameObject PTR [esi]).tag, 0
