@@ -262,6 +262,10 @@ GameInit PROC USES eax ecx edi esi
     add edi, SIZEOF GameObject
     ;; No data, will be copied in later
 
+    ;; Rapidfire powerup collectible
+    add edi, SIZEOF GameObject
+    ;; No data, will be copied in later
+
     ;; Fourth asteroid
     add edi, SIZEOF GameObject
     ;; No data, will be copied in later
@@ -274,8 +278,8 @@ GameInit PROC USES eax ecx edi esi
     rep movsb
 
     ;; Set spawnedobjects
-    mov SpawnedObjects, 9
-    mov STATIC_OBJECTS, 9
+    mov SpawnedObjects, 10
+    mov STATIC_OBJECTS, 10
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
 
@@ -778,7 +782,7 @@ AST2:
 
     INVOKE CheckFlag, hasSpawned, SPAWNED_ASTEROID2
     cmp eax, 0
-    jne AST3
+    jne RAPID
 
     ;; Spawn asteroid2 initial using movsb
     mov edi, OFFSET GameObjects+5*SIZEOF GameObject
@@ -787,6 +791,22 @@ AST2:
     rep movsb
     ;; Set flag for having spawned asteroid2
     or hasSpawned, SPAWNED_ASTEROID2
+
+RAPID:
+    cmp gamescore, SPAWNTIME_RAPIDFIRE
+    jl EXIT
+
+    INVOKE CheckFlag, hasSpawned, SPAWNED_RAPIDFIRE
+    cmp eax, 0
+    jne AST3
+
+    ;; Spawn rapidfire pickup using movsb
+    mov edi, OFFSET GameObjects+6*SIZEOF GameObject
+    mov esi, OFFSET rapidfire_powerup
+    mov ecx, SIZEOF GameObject
+    rep movsb
+    ;; Set flag for having spawned rapidfire
+    or hasSpawned, SPAWNED_RAPIDFIRE
 
 AST3:
     cmp gamescore, SPAWNTIME_ASTEROID3
@@ -797,7 +817,7 @@ AST3:
     jne EXIT
 
     ;; Spawn asteroid3 initial using movsb
-    mov edi, OFFSET GameObjects+6*SIZEOF GameObject
+    mov edi, OFFSET GameObjects+7*SIZEOF GameObject
     mov esi, OFFSET asteroid3_initial
     mov ecx, SIZEOF GameObject
     rep movsb
@@ -3644,11 +3664,11 @@ rapidblast EECS205BITMAP <6, 6, 0,, offset rapidblast + sizeof rapidblast>
 	BYTE 0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,080h,0e0h,0e0h,0e0h,0e0h,080h,000h,080h
 	BYTE 0e0h,0e0h,080h,000h
 
-    
-    
-    
-    
-    
+
+
+
+
+
 
 
 
@@ -4303,25 +4323,25 @@ shield_power EECS205BITMAP <64, 76, 0,, offset shield_power + sizeof shield_powe
 
 
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 rapidfire_power EECS205BITMAP <64, 76, 0e0h,, offset rapidfire_power + sizeof rapidfire_power>
 	BYTE 0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h
 	BYTE 0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h,0e0h
