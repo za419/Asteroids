@@ -94,6 +94,8 @@ KILL_SCORE = 128 ;; If set, will grant points equal to pExtra when killed
 COLLISION_DEFLECT = 256 ;; If two objects with this flag set collide, their normal collision will be preempted
                         ;; Instead, they will be deflected to move away from each other
                         ;; (Intended primarily for asteroid-asteroid) collisions
+DESPAWNING_OBJECT = 512 ;; Every frame, the object will have it's tag decremented by one.
+                        ;; When its tag is 0, the object will be deleted.
 
 GravitationalObject STRUCT
     maxrad FXPT 00640000h ;; Optimization: Do not calculate acceleration of objects whose center is this many pixels from our own. Set to 0 to disable
