@@ -79,6 +79,7 @@ Here is a list of all bitmaps and their sources:
  - ![bitmap](sprites/shield_pickup.png) is the sprite for the collectible shield powerup, and was made by me from scratch.
  - ![bitmap](sprites/rapidfire_power.png) is overlaid on the fighter to show that it has the rapidfire weapon, and was made by me from scratch.
  - ![bitmap](sprites/rapidfire_pickup.png) is the sprite for the collectible rapidfire powerup, and was made by me from scratch.
+ - ![bitmap](sprites/rapidblast.png) is the projectile fired by the fighter when empowered by rapidfire, and was made by me from scratch.
  - ![bitmap](sprites/paused.png) is overlaid on the game when the game is paused, and was made by me from scratch - The used font is [IBM CGAThin](https://int10h.org/oldschool-pc-fonts/fontlist/)
  - ![bitmap](sprites/gameover.png) is overlaid on the game after the player dies, and was made by me from scratch - The used font is [Butcherman](https://fonts.google.com/specimen/Butcherman)
  
