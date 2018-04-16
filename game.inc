@@ -36,8 +36,8 @@ MAX_RVELOCITY = 0000d000h ;; Maximum rotational velocity (be nice to the player 
 MIN_PAUSE = 5 ;; Minimum number of frames we can be paused for
 BLAST_VELOCITY = 00100000h ;; Velocity a shot is fired at
 BLAST_COOLDOWN = 30
-RAPIDFIRE_VELOCITY = 00400000h ;; Velocity a shot is fired at under the influence of rapidfire
-RAPIDFIRE_COOLDOWN = 7
+RAPIDFIRE_VELOCITY = 00200000h ;; Velocity a shot is fired at under the influence of rapidfire
+RAPIDFIRE_COOLDOWN = 5
 
 RESPAWN_SCALE = 16 ;; Global scaling for respawn timers (only works for integer second respawns, or ones which divide RESPAWN_SCALE evenly) - One RESPAWN_SCALE is estimated as one second
 
