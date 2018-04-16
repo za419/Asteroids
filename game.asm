@@ -999,10 +999,23 @@ M1:
     je EXIT
 
     ;; Do not fire if the blaster is cooling down
+    ;; Choose cooldown based on the presence or absence of the rapidfire state
+    mov edi, OFFSET GameObjects+2*SIZEOF GameObject ;; Powerup slot
+    cmp (GameObject PTR [edi]).sprite, OFFSET rapidfire_power
+    je RAPID_CD
+    ;; Standard cooldown
     cmp SinceFire, BLAST_COOLDOWN
     jb EXIT
     mov SinceFire, 0 ;; Place the blaster on cooldown
+    jmp ALLOC
 
+    ;; Rapidfire cooldown
+RAPID_CD:
+    cmp SinceFire, RAPIDFIRE_COOLDOWN
+    jb EXIT
+    mov SinceFire, 0 ;; Place the blaster on cooldown
+    ;; Fallthrough
+ALLOC:
     cmp SpawnedObjects, OBJECTS_SIZE ;; Make sure we don't overflow the array
     jl SPAWN
     mov ecx, STATIC_OBJECTS ;; Start overwriting old objects (non-blast objects must come first in the array)
@@ -1017,9 +1030,20 @@ SPAWN:
     mov edi, OFFSET GameObjects
     add edi, ecx
 
+    ;; Choose blast sprite based on rapidfire state
+    mov eax, OFFSET GameObjects+2*SIZEOF GameObject ;; Powerup slot
+    cmp (GameObject PTR [eax]).sprite, OFFSET rapidfire_power
+    je RAPID_SPAWN
+    ;; Standard sprite
     mov (GameObject PTR [edi]).sprite, OFFSET blast
+    jmp OFFSETS
 
-    mov ecx, OFFSET blast
+    ;; Rapidfire sprite
+RAPID_SPAWN:
+    mov (GameObject PTR [edi]).sprite, OFFSET rapidblast
+    ;; Fallthrough
+OFFSETS:
+    mov ecx, (GameObject PTR [edi]).sprite
     INVOKE ToFixedPoint, (EECS205BITMAP PTR [ecx]).dwHeight
     INVOKE FixedMultiply, eax, HALF
     mov ecx, eax
@@ -1044,6 +1068,11 @@ SPAWN:
     mov (GameObject PTR [edi]).rotation, ZERO
     mov (GameObject PTR [edi]).rvelocity, ZERO
 
+    ;; Set velocities based on rapidfire
+    mov eax, OFFSET GameObjects+2*SIZEOF GameObject ;; Powerup slot
+    cmp (GameObject PTR [eax]).sprite, OFFSET rapidfire_power
+    je RAPID
+    ;; Standard blast
     INVOKE FixedSin, (GameObject PTR [esi]).rotation
     INVOKE FixedMultiply, eax, BLAST_VELOCITY
     INVOKE FixedSubtract, (GameObject PTR [esi]).xvelocity, eax
@@ -1053,6 +1082,31 @@ SPAWN:
     INVOKE FixedMultiply, eax, BLAST_VELOCITY
     INVOKE FixedSubtract, (GameObject PTR [esi]).yvelocity, eax
     mov (GameObject PTR [edi]).yvelocity, eax
+
+    ;; Clear metadata and flags, as bug prevention
+    mov (GameObject PTR [edi]).flags, 0
+    mov (GameObject PTR [edi]).tag, 0
+    mov (GameObject PTR [edi]).pExtra, 0
+    mov (GameObject PTR [edi]).pRespawn, 0
+    jmp EXIT
+
+    ;; Rapidfire blast
+RAPID:
+    INVOKE FixedSin, (GameObject PTR [esi]).rotation
+    INVOKE FixedMultiply, eax, RAPIDFIRE_VELOCITY
+    INVOKE FixedSubtract, (GameObject PTR [esi]).xvelocity, eax
+    mov (GameObject PTR [edi]).xvelocity, eax
+
+    INVOKE FixedCos, (GameObject PTR [esi]).rotation
+    INVOKE FixedMultiply, eax, RAPIDFIRE_VELOCITY
+    INVOKE FixedSubtract, (GameObject PTR [esi]).yvelocity, eax
+    mov (GameObject PTR [edi]).yvelocity, eax
+
+    ;; Clear metadata, set flags to not collide with the player
+    mov (GameObject PTR [edi]).flags, COLLISION_NONPLAYER
+    mov (GameObject PTR [edi]).tag, 0
+    mov (GameObject PTR [edi]).pExtra, 0
+    mov (GameObject PTR [edi]).pRespawn, 0
     ;; Fallthrough
 EXIT:
     ;; Prevents sticking fire and accidental fire queuing
