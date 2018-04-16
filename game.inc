@@ -105,9 +105,11 @@ GravitationalObject ENDS
 ;; Spawned identifiers
 SPAWNED_ASTEROID1 = 1 ;; Second asteroid pair (first is spawned onload)
 SPAWNED_ASTEROID2 = 2 ;; Third asteroid pair
-SPAWNED_ASTEROID3 = 4 ;; Fourth asteroid pair
+SPAWNED_RAPIDFIRE = 4 ;; Rapidfire collectible
+SPAWNED_ASTEROID3 = 8 ;; Fourth asteroid pair
 
 ;; Spawn timers
 SPAWNTIME_ASTEROID1 = 250
 SPAWNTIME_ASTEROID2 = 1000
+SPAWNTIME_RAPIDFIRE = 2500
 SPAWNTIME_ASTEROID3 = 5000
